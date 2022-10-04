@@ -66,3 +66,8 @@ void Motor::turnLeft(int speed) {
   this -> motor_left_Lui(speed);
  // delay(50);
 }
+
+void Motor::stop() {
+  this -> motor_left_Dung();
+  this -> motor_right_Dung();
+}

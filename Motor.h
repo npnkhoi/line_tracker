@@ -16,6 +16,7 @@ class Motor {
     void goStraight(int speed);
     void turnRight(int speed);
     void turnLeft(int speed);
+    void stop();
   private:
     int _in1, _in2, _in3, _in4;
 };
