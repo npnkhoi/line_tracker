@@ -44,8 +44,11 @@ void loop()
 //    Serial.println("Going straight");
 //  }          
 //  delay(500);
-  Serial.print(usLeft.getDist());
-  Serial.print(usMiddle.getDist());
+  Serial.print("Left: ");
+  Serial.println(usLeft.getDist());
+  Serial.print("Middle: ");
+  Serial.println(usMiddle.getDist());
+  Serial.print("Right: ");
   Serial.println(usRight.getDist());
   delay(100);
   
