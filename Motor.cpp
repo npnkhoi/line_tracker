@@ -50,9 +50,9 @@ void Motor::motor_left_Tien(int speed) {
   digitalWrite(this -> _in3, HIGH);// chân này không có PWM
 }
 
-void Motor::goStraight(int speed) {
-  this -> motor_right_Tien(speed);
-  this -> motor_left_Tien(speed);
+void Motor::go(int speedRight, int speedLeft) {
+  this -> motor_right_Tien(speedRight);
+  this -> motor_left_Tien(speedLeft);
 }
 
 void Motor::turnRight(int speed) {

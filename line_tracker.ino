@@ -3,8 +3,10 @@
 #include "IRSensor.h"
 
 // Hyperparameters
-int speed = 110;
+int speed = 200;
 const int IR_PINS[] = {8, 9, 10, 11, 12};
+int Kp = 75; //thay đổi theo 
+int MAX_SPEED = 255;
 
 // Declare the devices
 Motor motor(4, 5, 7, 6);
@@ -26,8 +28,33 @@ void setup()
  
 void loop()
 {   
-//  irSensor.trackLine();
-//  
+  irSensor.trackLine();
+
+  // Test G algorithm 
+//  Serial.print(irSensor.irVal[0]);
+//  Serial.print(irSensor.irVal[1]);
+//  Serial.print(irSensor.irVal[2]);
+//  Serial.print(irSensor.irVal[3]);
+//  Serial.println(irSensor.irVal[4]);
+  int error = irSensor.getError();
+  Serial.println(error);
+  int delta = Kp*error;
+  Serial.println(delta);
+  int speedLeft = speed - delta;
+  int speedRight = speed + delta;
+  if (error != 0) {
+     if (error != 4)  {//inline
+         motor.go(speedLeft, speedRight);
+     } else {//outline
+         motor.stop();
+         }
+     }
+  else {
+     motor.go(speed, speed); //go straight
+     }
+  delay(10);
+}  
+  
 //  if (irSensor.irVal[2] == 0) {
 //    if (irSensor.irVal[0] || irSensor.irVal[1]) {
 //      motor.turnLeft(speed);
@@ -37,20 +64,19 @@ void loop()
 //      Serial.println("Turning right");
 //    } else {
 //      Serial.println("Completely lost");
-//      motor.stop();
+//      motor.turnRight(speed);
 //    }
 //  } else {
 //    motor.goStraight(speed);
 //    Serial.println("Going straight");
 //  }          
-//  delay(500);
-  Serial.print("Left: ");
-  Serial.println(usLeft.getDist());
-  Serial.print("Middle: ");
-  Serial.println(usMiddle.getDist());
-  Serial.print("Right: ");
-  Serial.println(usRight.getDist());
-  delay(100);
+
+//  Serial.print("Left: ");
+//  Serial.println(usLeft.getDist());
+//  Serial.print("Middle: ");
+//  Serial.println(usMiddle.getDist());
+//  Serial.print("Right: ");
+//  Serial.println(usRight.getDist());
+//  delay(100);
   
 //  Serial.println(usRight.getDist());
-}

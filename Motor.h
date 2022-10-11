@@ -13,7 +13,7 @@ class Motor {
     void motor_right_Tien(int speed);
     void motor_left_Lui(int speed);
     void motor_left_Tien(int speed);
-    void goStraight(int speed);
+    void go(int speedRight, int speedLeft);
     void turnRight(int speed);
     void turnLeft(int speed);
     void stop();
