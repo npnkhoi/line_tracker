@@ -8,10 +8,23 @@ const int IR_PINS[] = {8, 9, 10, 11, 12};
 int Kp = 75; //thay đổi theo 
 int MAX_SPEED = 255;
 
+/*
+ * MODE
+ * mode = 0: on-line and no obstacle
+ * mode = 1: off-line and obstacle
+ * mode = 2: off-line and finish
+ */
+
+/* 
+ *  DIRECTION
+ *  direction = 0: turn left to avoid obs
+ *  direction = 1: turn right to avoid obs
+ */
+
 // Declare the devices
 Motor motor(4, 5, 7, 6);
 UltrasonicSensor usLeft(A0, A1);
-UltrasonicSensor usMiddle(A2, A3);
+//UltrasonicSensor usMiddle(A2, A3);
 UltrasonicSensor usRight(A4, A5);
 IRSensor irSensor(IR_PINS);
 
@@ -21,62 +34,64 @@ IRSensor irSensor(IR_PINS);
 void setup()
 {
   Serial.begin(9600);
-
+  int mode = 0;
   // declare the line-tracking sensors
 }
-
  
 void loop()
-{   
-  irSensor.trackLine();
+{ 
+  //Test IR middle
+  if ((mode == 0) & ((usLeft.check()) || (usRight.check())) { //if on-line and detect obstacle
+    mode = 1;
+    while (usLeft.check()) {
+       motor.turnRight();
+       int direction = 1;
+    }
+    while (usRight.check()) {
+       motor.turnLeft();
+       int direction = 0;
+    }
+  } else if ((mode == 1) & (!usLeft.check()) & (!usRight.check()) & (irSenSor.getError != 4)) { 
+    mode = 0;
+  }
 
-  // Test G algorithm 
-//  Serial.print(irSensor.irVal[0]);
-//  Serial.print(irSensor.irVal[1]);
-//  Serial.print(irSensor.irVal[2]);
-//  Serial.print(irSensor.irVal[3]);
-//  Serial.println(irSensor.irVal[4]);
-  int error = irSensor.getError();
-  Serial.println(error);
-  int delta = Kp*error;
-  Serial.println(delta);
-  int speedLeft = speed - delta;
-  int speedRight = speed + delta;
-  if (error != 0) {
-     if (error != 4)  {//inline
-         motor.go(speedLeft, speedRight);
-     } else {//outline
-         motor.stop();
+  if (mode == 0) {
+      int error = irSensor.getError();
+      Serial.println(error);
+      int delta = Kp*error;
+      Serial.println(delta);
+      int speedLeft = speed - delta;
+      int speedRight = speed + delta;
+      if (error != 0) {
+         if (error != 4)  {//inline
+             motor.go(speedLeft, speedRight);
+         } else {//outline
+             mode = 2;
+             }
          }
-     }
-  else {
-     motor.go(speed, speed); //go straight
-     }
-  delay(10);
+      else {
+         motor.go(speed, speed); //go straight
+         }
+      delay(10);
+
+  } else if (mode == 1) { 
+      if (direction == 1) { //turn right to avoid => obs on the left
+        while (!usLeft.check()) {
+          motor.go(speed - Kp, speed + Kp);
+        }
+        while (usLeft,check()) {
+          motor.go(speed + Kp, speed - Kp);
+        }
+        
+      } else {
+        while (!usRight,.check()) { //turn left to avoid => obs on the right
+          motor.go(speed + Kp, speed - Kp);
+        }
+        while (usLeft,check()) {
+          motor.go(speed - Kp, speed + Kp);
+        }   
+      }     
+      motor.stop();
+  }
 }  
   
-//  if (irSensor.irVal[2] == 0) {
-//    if (irSensor.irVal[0] || irSensor.irVal[1]) {
-//      motor.turnLeft(speed);
-//      Serial.println("Turning left");
-//    } else if (irSensor.irVal[3] || irSensor.irVal[4]) {
-//      motor.turnRight(speed);
-//      Serial.println("Turning right");
-//    } else {
-//      Serial.println("Completely lost");
-//      motor.turnRight(speed);
-//    }
-//  } else {
-//    motor.goStraight(speed);
-//    Serial.println("Going straight");
-//  }          
-
-//  Serial.print("Left: ");
-//  Serial.println(usLeft.getDist());
-//  Serial.print("Middle: ");
-//  Serial.println(usMiddle.getDist());
-//  Serial.print("Right: ");
-//  Serial.println(usRight.getDist());
-//  delay(100);
-  
-//  Serial.println(usRight.getDist());
