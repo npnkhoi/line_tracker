@@ -15,12 +15,6 @@ int MAX_SPEED = 255;
  * mode = 2: off-line and finish
  */
 
-/* 
- *  DIRECTION
- *  direction = 0: turn left to avoid obs
- *  direction = 1: turn right to avoid obs
- */
-
 // Declare the devices
 Motor motor(4, 5, 7, 6);
 UltrasonicSensor usLeft(A0, A1);
@@ -43,13 +37,8 @@ void loop()
   //Test IR middle
   if ((mode == 0) & ((usLeft.check()) || (usRight.check())) { //if on-line and detect obstacle
     mode = 1;
-    while (usLeft.check()) {
+    while (usLeft.check()) { //assuming side sensor on the right
        motor.turnRight();
-       int direction = 1;
-    }
-    while (usRight.check()) {
-       motor.turnLeft();
-       int direction = 0;
     }
   } else if ((mode == 1) & (!usLeft.check()) & (!usRight.check()) & (irSenSor.getError != 4)) { 
     mode = 0;
@@ -75,23 +64,13 @@ void loop()
       delay(10);
 
   } else if (mode == 1) { 
-      if (direction == 1) { //turn right to avoid => obs on the left
-        while (!usLeft.check()) {
-          motor.go(speed - Kp, speed + Kp);
-        }
-        while (usLeft,check()) {
-          motor.go(speed + Kp, speed - Kp);
-        }
-        
-      } else {
-        while (!usRight,.check()) { //turn left to avoid => obs on the right
-          motor.go(speed + Kp, speed - Kp);
-        }
-        while (usLeft,check()) {
-          motor.go(speed - Kp, speed + Kp);
-        }   
-      }     
-      motor.stop();
+    while (!usLeft.check()) {
+      motor.go(speed - Kp, speed + Kp);
+    }
+    while (usLeft,check()) {
+      motor.go(speed + Kp, speed - Kp);
+    }
+    motor.stop();
   }
 }  
   
