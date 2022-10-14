@@ -4,6 +4,8 @@
 #define MAX_SPEED 255 //từ 0-255
 #define MIN_SPEED 0
 
+//TO DO: FIX BUG GO(RIGHT, LEFT) - EXPECTED = GO(LEFF, RIGHT) - REAL
+
 Motor::Motor(int in1, int in2, int in3, int in4) {
   _in1 = in1;
   _in2 = in2;
@@ -50,9 +52,9 @@ void Motor::motor_left_Tien(int speed) {
   digitalWrite(this -> _in3, HIGH);// chân này không có PWM
 }
 
-void Motor::goStraight(int speed) {
-  this -> motor_right_Tien(speed);
-  this -> motor_left_Tien(speed);
+void Motor::go(int speedRight, int speedLeft) {
+  this -> motor_right_Tien(speedRight);
+  this -> motor_left_Tien(speedLeft);
 }
 
 void Motor::turnRight(int speed) {

@@ -6,9 +6,11 @@ class IRSensor{
   public:
     IRSensor(const int *_pins);
     void trackLine();
-    int pins[5], irVal[5];
-    int offSide(int near, int far);
+    int getErrorTest();
     int getError();
+    int pins[5], irVal[5];
+  private:
+    int offSide(int near , int far);
 };
 
 #endif
