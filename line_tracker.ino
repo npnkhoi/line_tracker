@@ -3,9 +3,9 @@
 #include "IRSensor.h"
 
 // Hyperparameters
-int speed = 200;
+int speed = 150;
 const int IR_PINS[] = {8, 9, 10, 11, 12};
-int Kp = 75; //thay đổi theo 
+int Kp = 75;
 int MAX_SPEED = 255;
 int mode = 0;
 
@@ -31,10 +31,29 @@ void setup()
   Serial.begin(9600);
   // declare the line-tracking sensors
 }
- 
-void loop()
-{ 
-  if ((mode == 0) & ((usLeft.check()) || (usRight.check())) { //if on-line and detect obstacle
+
+void followLine() {
+  int error = irSensor.getError();
+  Serial.println(error);
+  int delta = Kp*error;
+  Serial.println(delta);
+  int speedLeft = speed - delta;
+  int speedRight = speed + delta;
+  if (error != 0) {
+     if (error != 4)  {//inline
+         motor.go(speedLeft, speedRight);
+     } else {//outline
+         mode = 2;
+         }
+     }
+  else {
+     motor.go(speed, speed); //go straight
+     }
+  delay(10);
+}
+
+void midterm() {
+  if (mode == 0 && (usLeft.check() || usRight.check()) ) { //if on-line and detect obstacle
     mode = 1;
     while ((usLeft.check()) & (usRight.check())) { //assuming side sensor on the right
       motor.turnRight(speed);
@@ -42,26 +61,9 @@ void loop()
   } else if ((mode == 1) & (!usLeft.check()) & (!usRight.check()) & (irSensor.getError() != 4)) { 
     mode = 0;
   }
-
+  Serial.println(mode);
   if (mode == 0) {
-      int error = irSensor.getError();
-      Serial.println(error);
-      int delta = Kp*error;
-      Serial.println(delta);
-      int speedLeft = speed - delta;
-      int speedRight = speed + delta;
-      if (error != 0) {
-         if (error != 4)  {//inline
-             motor.go(speedLeft, speedRight);
-         } else {//outline
-             mode = 2;
-             }
-         }
-      else {
-         motor.go(speed, speed); //go straight
-         }
-      delay(10);
-
+      followLine();
   } else if (mode == 1) { 
     while (!usLeft.check()) {
       motor.go(speed - Kp, speed + Kp);
@@ -78,6 +80,16 @@ void loop()
   Serial.print("Side: ");
   Serial.println(usSide.getDist());
   delay(1000);
-  Serial.println("---------------");
+  Serial.println("---------------");  
+}
+
+void loop()
+{ 
+  followLine();
+  irSensor.trackLine();
+  for (int i = 0; i < 5; ++ i) {
+    Serial.print(irSensor.irVal[i]);
+  }
+  Serial.println();
 }  
   
