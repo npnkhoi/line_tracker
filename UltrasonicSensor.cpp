@@ -32,3 +32,11 @@ float UltrasonicSensor::getDist() {
   distance = float(duration/2/29.412);
   return distance;
 }
+
+bool UltrasonicSensor::check() {
+  if (this -> getDist() <= 25) {
+    return true;
+  } else {
+    return false;
+  }
+}
