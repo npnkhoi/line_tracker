@@ -34,7 +34,6 @@ void setup()
  
 void loop()
 { 
-  //Test IR middle
   if ((mode == 0) & ((usLeft.check()) || (usRight.check())) { //if on-line and detect obstacle
     mode = 1;
     while ((usLeft.check()) & (usRight.check())) { //assuming side sensor on the right
