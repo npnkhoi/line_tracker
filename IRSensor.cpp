@@ -55,8 +55,11 @@ int IRSensor::offSide(int near , int far) {
 }
 
 int IRSensor::getError() {
+  this -> trackLine();
   if ((this -> irVal[0] == 0) && (this -> irVal[1] == 0) && (this -> irVal[2] == 0) && (this -> irVal[3] == 0) && (this -> irVal[4] == 0)) {
     return 4;
+  } else if ((this -> irVal[0] == 1) && (this -> irVal[1] == 1) && (this -> irVal[2] == 1) && (this -> irVal[3] == 1) && (this -> irVal[4] == 1)) {
+    return -4;
   } else {
      if (this -> irVal[2] == 1) {
         if (this -> irVal[1] != this -> irVal[3]) {
