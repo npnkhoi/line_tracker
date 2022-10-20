@@ -63,6 +63,24 @@ void Motor::turnRight(int speed) {
  // delay(50);
 }
 
+void Motor::pControl(int error, int speed, int Kp) {
+  // Proportional control
+  int delta = Kp*error;
+  int speedLeft = speed + delta;
+  int speedRight = speed - delta;
+  this -> go(speedRight, speedLeft);
+  
+//  Serial.print("Speed: ");
+//  Serial.print(speedLeft);
+//  Serial.print(" ");
+//  Serial.println(speedRight);
+//  if (delta < 0) {
+//    Serial.println("Turn left");U
+//  } else {
+//    Serial.println("Turn right");
+//  }
+}
+
 void Motor::turnLeft(int speed) {
   this -> motor_right_Tien(speed);
   this -> motor_left_Lui(speed);

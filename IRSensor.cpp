@@ -10,39 +10,14 @@ IRSensor::IRSensor(const int *_pins) {
 }
 
 void IRSensor::trackLine() {
+  // update irVal from the physical signals
   for (int i = 0; i < 5; ++ i) {
     this -> irVal[i] = digitalRead(this -> pins[i]);
   }
 }
 
-//int IRSensor::getError() {
-//  int getError;
-//  return getError;
-//}
-
-int IRSensor::getErrorTest(){
-  int getErrorTest;
-//  const int IR_PINS[] = {8, 9, 10, 11, 12};
-//  IRSensor irSensor(IR_PINS);
-  if (this -> irVal[2] == 0) {
-    if (this -> irVal[0] || this -> irVal[1]) {
-      getErrorTest = 1;
-      Serial.println("Turning left");
-    } else if (this -> irVal[3] || this -> irVal[4]) {
-      getErrorTest = -1;
-      Serial.println("Turning right");
-    } else {
-      Serial.println("Completely lost");
-      getErrorTest = 4;
-    }
-  } else {
-    getErrorTest = 0;
-    Serial.println("Going straight");
-  }
-  return getErrorTest;      
-}
-
 int IRSensor::offSide(int near , int far) {
+  // return either 1, 2, or 3
   if ((near == 1) && (far == 0)) {
     return 1;
   }
@@ -55,6 +30,7 @@ int IRSensor::offSide(int near , int far) {
 }
 
 int IRSensor::getError() {
+  // return an error in range [-4, 4]
   this -> trackLine();
   if ((this -> irVal[0] == 0) && (this -> irVal[1] == 0) && (this -> irVal[2] == 0) && (this -> irVal[3] == 0) && (this -> irVal[4] == 0)) {
     return 4;
@@ -74,11 +50,23 @@ int IRSensor::getError() {
      } else {
         if (this -> irVal[0] == 1 || this -> irVal[1] == 1) {
            int k = offSide(this -> irVal[1], this -> irVal[0]);
-           return 0 - k;
+           return -k;
         } else {
            int k = offSide(this -> irVal[3], this -> irVal[4]);
            return k;
         }
      }
   }
+}
+
+int IRSensor::countOnes() {
+  // return the number of ones in irVal[]
+  this -> trackLine();
+  int ret = 0;
+  for (int i = 0; i < 5; ++ i) {
+    ret += abs(this -> irVal[i]);
+  }
+  Serial.print("count ones: ");
+  Serial.println(ret);
+  return ret;
 }

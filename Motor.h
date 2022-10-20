@@ -17,6 +17,7 @@ class Motor {
     void turnRight(int speed);
     void turnLeft(int speed);
     void stop();
+    void pControl(int error, int speed, int Kp);
   private:
     int _in1, _in2, _in3, _in4;
 };
