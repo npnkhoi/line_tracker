@@ -6,11 +6,13 @@
 
 //TO DO: FIX BUG GO(RIGHT, LEFT) - EXPECTED = GO(LEFF, RIGHT) - REAL
 
-Motor::Motor(int in1, int in2, int in3, int in4) {
+Motor::Motor(int in1, int in2, int in3, int in4, int _baseSpeed, float _kp) {
   _in1 = in1;
   _in2 = in2;
   _in3 = in3;
   _in4 = in4;
+  baseSpeed = _baseSpeed;
+  kp = _kp;
   // init the pins
   pinMode(in1, OUTPUT);
   pinMode(in2, OUTPUT);
@@ -63,12 +65,17 @@ void Motor::turnRight(int speed) {
  // delay(50);
 }
 
-void Motor::pControl(int error, int speed, int Kp) {
+void Motor::pControl(float error) {
   // Proportional control
-  int delta = Kp*error;
-  int speedLeft = speed + delta;
-  int speedRight = speed - delta;
-  this -> go(speedRight, speedLeft);
+  int delta = (this -> kp) * error;
+  int speedLeft = this -> baseSpeed + delta;
+  int speedRight = this -> baseSpeed - delta;
+  Serial.print("speeds:");
+  Serial.print(speedLeft);
+  Serial.print(" ");
+  Serial.print(speedRight);
+  Serial.print("\n");
+  this -> go(speedRight, (float) speedLeft);
   
 //  Serial.print("Speed: ");
 //  Serial.print(speedLeft);

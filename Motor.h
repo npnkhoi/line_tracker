@@ -6,7 +6,7 @@
 
 class Motor {
   public:
-    Motor(int in1, int int2, int in3, int int4);
+    Motor(int in1, int int2, int in3, int int4, int _baseSpeed, float _kp);
     void motor_right_Dung();
     void motor_left_Dung();
     void motor_right_Lui(int speed);
@@ -17,9 +17,10 @@ class Motor {
     void turnRight(int speed);
     void turnLeft(int speed);
     void stop();
-    void pControl(int error, int speed, int Kp);
+    void pControl(float error);
   private:
-    int _in1, _in2, _in3, _in4;
+    int _in1, _in2, _in3, _in4, baseSpeed;
+    float kp;
 };
 
 #endif
