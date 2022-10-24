@@ -7,10 +7,10 @@ int speed = 200;
 const int IR_PINS[] = {8, 9, 10, 11, 12};
 int Kp = speed * 0.4;
 int MAX_SPEED = 255;
-int mode = 0;
+int mode;
 int distToError = 5;
 int returningSpeed = 120;
-int threshold = 15;
+int threshold = 10;
 
 /*
    MODE
@@ -34,7 +34,7 @@ void setup()
   Serial.begin(9600);
   Serial.println("Setting up ...");
   Serial.println("Done setup.");
-
+  mode = 2;
 }
 
 void mode0() {
@@ -56,8 +56,12 @@ void mode1() {
 }
 
 void mode2() {
-  // following object
+  if (irSensor.countOnes() >= 1) {
+    mode = 3;
+    return;
+  }
   
+  // following object
   float diff = usSide.getDist() - threshold;
   float error = diff / threshold;
   motor.pControl(error); // TODO: put speed and Kp to motor attributes
@@ -68,9 +72,9 @@ void mode3() {
 }
 
 void mainloop() {
-  if (mode == 0) mode0();
+//  if (mode == 0) mode0();
 //  if (mode == 1) mode1();
-//  if (mode == 2) mode2();
+  if (mode == 2) mode2();
 //  if (mode == 3) mode3(); 
 }
 
