@@ -12,6 +12,8 @@ int distToError = 5;
 int returningSpeed = 120;
 int threshold = 10;
 int speedTurn = 100;
+bool onLine = false;
+int error;
 
 /*
  * mode 0: on-line + no obs in the front + no obs in the side
@@ -44,7 +46,6 @@ void mode0() {
     return;
   }
 
-  int error = irSensor.getError();
   if (abs(error) == 4) {
     motor.stop();
   } else {
@@ -53,16 +54,19 @@ void mode0() {
 }
 
 void mode1() {
-  int error = irSensor.getError();
   if (error == 4 && !usRight.check() && !usLeft.check() && usSide.check()) {
     mode = 2;
+    onLine = false;
     return;
   }
     motor.turnLeft(speed);
 }
 
 void mode2() {
-  if (irSensor.countOnes() >= 1) {
+  if (irSensor.countOnes() >= 2){
+    onLine = true;
+  }
+  if (onLine == true && error == 4) {
     mode = 3;
     return;
   }
@@ -70,21 +74,21 @@ void mode2() {
   // following object
   float diff = usSide.getDist() - threshold;
   if (diff > 50) diff = 0;
-  float error = diff / threshold;
-  motor.pControl(error); // TODO: put speed and Kp to motor attributes
+  float error_2 = diff / threshold;
+  motor.pControl(error_2); // TODO: put speed and Kp to motor attributes
 }
 
 void mode3() {
-  int error = irSensor.getError();
-  if (error == 0 && !usRight.check() && !usLeft.check() && !usSide.check()) {
+  if (abs(error) <= 1 && !usRight.check() && !usLeft.check() && !usSide.check()) {
     mode = 0;
+    motor.stop();
     return;
   }
-
-  motor.go(158, 54);
+    motor.turnLeft(speed);
 }
 
 void mainloop() {
+  error = irSensor.getError();
   if (mode == 0) mode0();
   if (mode == 1) mode1();
   if (mode == 2) mode2();
