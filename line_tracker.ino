@@ -11,13 +11,12 @@ int mode = 0;
 int distToError = 5;
 int returningSpeed = 120;
 int threshold = 15;
-int speedTurn = 100;
 
 /*
  * mode 0: on-line + no obs in the front + no obs in the side
  * mode 1: on-line + obs in the front -> off-line + obs not in the front + obs in the side
  * mode 2: off-line + obs on the side + obs not in the front -> on-line + obs on the side + obs not in the front
- * mode 3: return to line
+ * mode 3: on-line + obs on the side + obs not in the front -> error = 0 + no obs in the front + no obs on the side
  */
 
 // Declare the devices
@@ -56,10 +55,9 @@ void mode1() {
   int error = irSensor.getError();
   if (error == 4 && !usRight.check() && !usLeft.check() && usSide.check()) {
     mode = 2;
-    motor.stop(); //
     return;
   }
-    motor.turnLeft(speedTurn);
+    motor.turnLeft(speed);
 }
 
 void mode2() {
@@ -71,14 +69,20 @@ void mode2() {
 }
 
 void mode3() {
-  
+  int error = irSensor.getError();
+  if (error == 0 && !usRight.check() && !usLeft.check() && !usSide.check()) {
+    mode = 0
+    return;
+  }
+
+  motor.go(158, 54);
 }
 
 void mainloop() {
   if (mode == 0) mode0();
   if (mode == 1) mode1();
 //  if (mode == 2) mode2();
-//  if (mode == 3) mode3(); 
+  if (mode == 3) mode3(); 
 }
 
 void myPrint(char s[], float x) {
