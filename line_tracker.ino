@@ -10,7 +10,7 @@ int MAX_SPEED = 255;
 int mode;
 int distToError = 5;
 int returningSpeed = 120;
-int threshold = 15;
+int threshold = 10;
 int speedTurn = 100;
 
 /*
@@ -35,7 +35,7 @@ void setup()
   Serial.begin(9600);
   Serial.println("Setting up ...");
   Serial.println("Done setup.");
-  mode = 2;
+  mode = 0;
 }
 
 void mode0() {
@@ -56,20 +56,22 @@ void mode1() {
   int error = irSensor.getError();
   if (error == 4 && !usRight.check() && !usLeft.check() && usSide.check()) {
     mode = 2;
-    motor.stop(); //
+    motor.stop(); // to delete
     return;
   }
-    motor.turnLeft(speedTurn);
+    motor.turnLeft(speed);
 }
 
 void mode2() {
   if (irSensor.countOnes() >= 1) {
     mode = 3;
+    motor.stop();
     return;
   }
   
   // following object
   float diff = usSide.getDist() - threshold;
+  if (diff > 50) diff = 0;
   float error = diff / threshold;
   motor.pControl(error); // TODO: put speed and Kp to motor attributes
 }
