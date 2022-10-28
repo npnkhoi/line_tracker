@@ -1,6 +1,7 @@
 #include "Motor.h"
 #include "UltrasonicSensor.h"
 #include "IRSensor.h"
+#include "Encoder.h"
 
 // Hyperparameters
 int speed = 200;
@@ -20,6 +21,7 @@ int error;
  * mode 1: on-line + obs in the front -> off-line + obs not in the front + obs in the side
  * mode 2: off-line + obs on the side + obs not in the front -> on-line + obs on the side + obs not in the front
  * mode 3: on-line + obs on the side + obs not in the front -> error = 0 + no obs in the front + no obs on the side
+ * mode 4: mode 0 + all IRsensors on-line
  */
 
 // Declare the devices
@@ -87,12 +89,23 @@ void mode3() {
     motor.turnLeft(speed);
 }
 
+void mode4() {
+  if ((irSensor.irVal[0] == 1) && (irSensor.irVal[1] == 1) && (irSensor.irVal[2] == 1) && (irSensor.irVal[3] == 1) && (irSensor.irVal[4] == 1)) {
+    mode = 4;
+    return; 
+  }
+    motor.turnLeft(MAX_SPEED);
+    delay(240);
+}
+
 void mainloop() {
   error = irSensor.getError();
   if (mode == 0) mode0();
   if (mode == 1) mode1();
   if (mode == 2) mode2();
-  if (mode == 3) mode3(); 
+  if (mode == 3) mode3();
+  if (mode == 4) mode4(); 
+  
 }
 
 void myPrint(char s[], float x) {
@@ -102,9 +115,12 @@ void myPrint(char s[], float x) {
 }
 
 void loop() {
-  myPrint("mode", mode);
-  myPrint("left dist", usLeft.getDist());
-  myPrint("right dist", usRight.getDist());
-  myPrint("side dist", usSide.getDist());
-  mainloop();
+//  myPrint("mode", mode);
+//  myPrint("left dist", usLeft.getDist());
+//  myPrint("right dist", usRight.getDist());
+//  myPrint("side dist", usSide.getDist());
+//  mainloop();
+  encoder.incPulseLeft();
+  
+//  followLine();
 }
