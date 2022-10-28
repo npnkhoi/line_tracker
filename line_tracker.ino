@@ -1,7 +1,7 @@
 #include "Motor.h"
 #include "UltrasonicSensor.h"
 #include "IRSensor.h"
-#include "Encoder.h"
+//#include "Encoder.h"
 
 // Hyperparameters
 int speed = 200;
@@ -9,7 +9,6 @@ const int IR_PINS[] = {8, 9, 10, 11, 12};
 int Kp = speed * 0.4;
 int MAX_SPEED = 255;
 int mode;
-int distToError = 5;
 int returningSpeed = 120;
 int threshold = 10;
 int speedTurn = 100;
@@ -61,6 +60,11 @@ void mode1() {
     onLine = false;
     return;
   }
+    Serial.print("usRight");
+    Serial.println(usRight.getDist());
+    Serial.print("usLeft");
+    Serial.println(usLeft.getDist());
+//    delay(100);
     motor.turnLeft(speed);
 }
 
@@ -91,7 +95,7 @@ void mode3() {
 
 void mode4() {
   if ((irSensor.irVal[0] == 1) && (irSensor.irVal[1] == 1) && (irSensor.irVal[2] == 1) && (irSensor.irVal[3] == 1) && (irSensor.irVal[4] == 1)) {
-    mode = 4;
+    mode = 4; // Khoi: looks wrong, should switch from mode 0
     return; 
   }
     motor.turnLeft(MAX_SPEED);
@@ -100,15 +104,16 @@ void mode4() {
 
 void mainloop() {
   error = irSensor.getError();
+  Serial.println(mode);
   if (mode == 0) mode0();
-  if (mode == 1) mode1();
-  if (mode == 2) mode2();
-  if (mode == 3) mode3();
-  if (mode == 4) mode4(); 
+  else if (mode == 1) mode1();
+  else if (mode == 2) mode2();
+  else if (mode == 3) mode3();
+  else if (mode == 4) mode4(); 
   
 }
 
-void myPrint(char s[], float x) {
+void myPrint(char *s, float x) {
   Serial.print(s);
   Serial.print(" ");
   Serial.println(x);
@@ -120,7 +125,8 @@ void loop() {
 //  myPrint("right dist", usRight.getDist());
 //  myPrint("side dist", usSide.getDist());
 //  mainloop();
-  encoder.incPulseLeft();
+//  encoder.incPulseLeft();
   
+  mainloop();
 //  followLine();
 }
