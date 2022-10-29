@@ -1,13 +1,11 @@
 #include "Motor.h"
 #include "UltrasonicSensor.h"
 #include "IRSensor.h"
-//#include "Encoder.h"
+#include "Encoder.h"
 
 // Hyperparameters
 int speed = 200;
 const int IR_PINS[] = {8, 9, 10, 11, 12};
-const int encoderRight = 2;
-const int encoderLeft = 3;
 int Kp = speed * 0.4;
 int MAX_SPEED = 255;
 int mode;
@@ -16,7 +14,6 @@ int threshold = 10;
 int speedTurn = 100;
 bool onLine = false;
 int error;
-
 
 /*
  * mode 0: on-line + no obs in the front + no obs in the side
@@ -32,6 +29,7 @@ UltrasonicSensor usLeft(A0, A1);
 UltrasonicSensor usRight(A2, A3);
 UltrasonicSensor usSide(A4, A5);
 IRSensor irSensor(IR_PINS);
+Encoder encoder(3,2);
 
 
 /* ============================================================================================ */
@@ -41,7 +39,7 @@ void setup()
   Serial.begin(9600);
   Serial.println("Setting up ...");
   Serial.println("Done setup.");
-  mode = 0;
+  mode = 4;
 }
 
 void mode0() {
@@ -49,10 +47,10 @@ void mode0() {
     mode = 1;
     return;
   }
- if ((irSensor.irVal[0] == 1) && (irSensor.irVal[1] == 1) && (irSensor.irVal[2] == 1) && (irSensor.irVal[3] == 1) && (irSensor.irVal[4] == 1)) {
-    mode = 4;
-    return; 
-  }
+// if ((irSensor.irVal[0] == 1) && (irSensor.irVal[1] == 1) && (irSensor.irVal[2] == 1) && (irSensor.irVal[3] == 1) && (irSensor.irVal[4] == 1)) {
+//    mode = 4;
+//    return; 
+//  }
 
   if (abs(error) == 4) {
     motor.stop();
@@ -101,23 +99,21 @@ void mode3() {
 }
 
 void mode4() {
-  motor.turnLeft(MAX_SPEED);
-  delay(240);
-  motor.go(255, 255);
-  delay(3600);
-  motor.turnLeft(MAX_SPEED);
-  delay(150);
-  motor.go(255,255);
-  delay(500);
-  motor.stop();
-  delay(5000);
+  motor.turnLeft(speed);
+//  delay(240);
+//  motor.go(255, 255);
+//  delay(3600);
+//  motor.turnLeft(MAX_SPEED);
+//  delay(150);
+//  motor.go(255,255);
+//  delay(500);
+//  motor.stop();
+//  delay(5000);
 }
-
-
 
 void mainloop() {
   error = irSensor.getError();
-  Serial.println(mode);
+//  Serial.println(mode);
   if (mode == 0) mode0();
   else if (mode == 1) mode1();
   else if (mode == 2) mode2();
@@ -137,9 +133,8 @@ void loop() {
 //  myPrint("left dist", usLeft.getDist());
 //  myPrint("right dist", usRight.getDist());
 //  myPrint("side dist", usSide.getDist());
-//  mainloop();
-//  encoder.incPulseLeft();
-  
-  mainloop();
+mainloop();
 //  followLine();
+encoder.getCounter(240);
+
 }

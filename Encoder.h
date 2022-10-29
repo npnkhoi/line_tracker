@@ -7,12 +7,14 @@ class Encoder{
   public:
     Encoder(int leftPin, int rightPin);
     void resetCounter();
-    int getCounter(int side);
+    void getCounter(int time_delay);
     static void incPulseLeft(), incPulseRight();
     static int leftCounter, rightCounter;
+    unsigned long present, real_time;
     
   private:
     int _leftPin, _rightPin;
+
 };
 
 #endif
