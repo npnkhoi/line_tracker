@@ -6,6 +6,8 @@
 // Hyperparameters
 int speed = 200;
 const int IR_PINS[] = {8, 9, 10, 11, 12};
+const int encoderRight = 2;
+const int encoderLeft = 3;
 int Kp = speed * 0.4;
 int MAX_SPEED = 255;
 int mode;
@@ -14,6 +16,7 @@ int threshold = 10;
 int speedTurn = 100;
 bool onLine = false;
 int error;
+
 
 /*
  * mode 0: on-line + no obs in the front + no obs in the side
@@ -45,6 +48,10 @@ void mode0() {
  if (usLeft.check() || usRight.check()) { // if detecting an obstacle
     mode = 1;
     return;
+  }
+ if ((irSensor.irVal[0] == 1) && (irSensor.irVal[1] == 1) && (irSensor.irVal[2] == 1) && (irSensor.irVal[3] == 1) && (irSensor.irVal[4] == 1)) {
+    mode = 4;
+    return; 
   }
 
   if (abs(error) == 4) {
@@ -94,13 +101,19 @@ void mode3() {
 }
 
 void mode4() {
-  if ((irSensor.irVal[0] == 1) && (irSensor.irVal[1] == 1) && (irSensor.irVal[2] == 1) && (irSensor.irVal[3] == 1) && (irSensor.irVal[4] == 1)) {
-    mode = 4; // Khoi: looks wrong, should switch from mode 0
-    return; 
-  }
-    motor.turnLeft(MAX_SPEED);
-    delay(240);
+  motor.turnLeft(MAX_SPEED);
+  delay(240);
+  motor.go(255, 255);
+  delay(3600);
+  motor.turnLeft(MAX_SPEED);
+  delay(150);
+  motor.go(255,255);
+  delay(500);
+  motor.stop();
+  delay(5000);
 }
+
+
 
 void mainloop() {
   error = irSensor.getError();
