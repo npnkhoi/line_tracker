@@ -59,9 +59,15 @@ void Motor::go(int speedRight, int speedLeft) {
   this -> motor_left_Tien(speedLeft);
 }
 
+void Motor::turnLeft(int speed) {
+  this -> motor_right_Tien(speed);
+  this -> motor_left_Lui((int)(speed*1.085));
+ // delay(50);
+}
+
 void Motor::turnRight(int speed) {
   this -> motor_right_Lui(speed);
-  this -> motor_left_Tien(speed);
+  this -> motor_left_Tien((int)(speed*1.08));
  // delay(50);
 }
 
@@ -88,11 +94,7 @@ void Motor::pControl(float error) {
 //  }
 }
 
-void Motor::turnLeft(int speed) {
-  this -> motor_right_Tien(speed);
-  this -> motor_left_Lui(speed);
- // delay(50);
-}
+
 
 void Motor::stop() {
   this -> motor_left_Dung();
