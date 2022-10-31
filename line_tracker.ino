@@ -63,6 +63,10 @@ void mode1() {
 }
 
 void mode2() {
+  if (usLeft.check() || usRight.check()) { // if detecting an obstacle
+    mode = 1; // return to mode 1 -> avoid it
+    return;
+  }
   if (irSensor.countOnes() >= 2){
     onLine = true;
   }
