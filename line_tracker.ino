@@ -2,6 +2,7 @@
 #include "UltrasonicSensor.h"
 #include "IRSensor.h"
 #include "Encoder.h"
+#include "Display.h"
 
 // Hyperparameters
 int MAX_SPEED = 255;
@@ -21,7 +22,7 @@ int threshold = 10;
 int speedTurn = 100;
 bool onLine = false;
 int error;
-int i_mode4 = 0;
+const int displayPins[] = {A0, A1, 13};
 
 /*
  * mode 0: on-line + no obs in the front + no obs in the side
@@ -33,32 +34,33 @@ int i_mode4 = 0;
 
 // Declare the devices
 Motor motor(4, 5, 7, 6, speed, Kp);
-UltrasonicSensor usLeft(A0, A1);
-UltrasonicSensor usRight(A2, A3);
+//UltrasonicSensor usLeft(A0, A1);
+UltrasonicSensor usFront(A2, A3);
 UltrasonicSensor usSide(A4, A5);
 IRSensor irSensor(IR_PINS);
-Encoder encoder(2,3);
+Encoder encoder(3,2);
+Display screen(displayPins);
 
 
-/* ============================================================================================ */
 
 void setup()
 {
+    
   Serial.begin(9600);
   Serial.println("Setting up ...");
   Serial.println("Done setup.");
-  mode = 4;
+  mode = 0;
 }
 
 void mode0() {
- if (usLeft.check() || usRight.check()) { // if detecting an obstacle
+ if (usFront.check()) { // if detecting an obstacle
     mode = 1;
     return;
   }
-// if ((irSensor.irVal[0] == 1) && (irSensor.irVal[1] == 1) && (irSensor.irVal[2] == 1) && (irSensor.irVal[3] == 1) && (irSensor.irVal[4] == 1)) {
-//    mode = 4;
-//    return; 
-//  }
+ if ((irSensor.irVal[0] == 1) && (irSensor.irVal[1] == 1) && (irSensor.irVal[2] == 1) && (irSensor.irVal[3] == 1) && (irSensor.irVal[4] == 1)) {
+    mode = 4;
+    return; 
+  }
 
   if (abs(error) == 4) {
     motor.stop();
@@ -68,24 +70,28 @@ void mode0() {
 }
 
 void mode1() {
-  if (error == 4 && !usRight.check() && !usLeft.check() && usSide.check()) {
+  if (!usFront.check() && usSide.check()) {
     mode = 2;
     onLine = false;
     return;
   }
-    Serial.print("usRight");
-    Serial.println(usRight.getDist());
-    Serial.print("usLeft");
-    Serial.println(usLeft.getDist());
 //    delay(100);
     motor.turnLeft(speed);
 }
 
 void mode2() {
+  if (usFront.check()) { // if detecting an obstacle
+    mode = 1; // return to mode 1 -> avoid it
+    return;
+  }
   if (irSensor.countOnes() >= 2){
     onLine = true;
   }
   if (onLine == true && error == 4) {
+    motor.motor_left_Lui(speed);
+    motor.motor_right_Lui(speed);
+    delay(50);
+    motor.stop();
     mode = 3;
     return;
   }
@@ -98,12 +104,12 @@ void mode2() {
 }
 
 void mode3() {
-  if (abs(error) <= 1 && !usRight.check() && !usLeft.check() && !usSide.check()) {
-    mode = 0;
+  if (abs(error) <= 3 && !usFront.check() && !usSide.check()) {
     motor.stop();
+    mode = 0;
     return;
   }
-    motor.turnLeft(speed);
+    motor.turnLeft(returningSpeed);
 }
 
 void mode4() {
@@ -117,9 +123,20 @@ void mode4() {
   }  
 }
 
+void updateLight() {
+  
+}
+
 void mainloop() {
-  error = irSensor.getError();
-//  Serial.println(mode);
+  error = irSensor.getError(); // very important!!
+  Serial.print("mode: ");
+  Serial.println(mode);
+  Serial.print("usFront");
+  Serial.println(usFront.getDist());
+  Serial.print("usSide");
+  Serial.println(usSide.getDist());
+//  mode0();
+  screen.showMode(mode);
   if (mode == 0) mode0();
   else if (mode == 1) mode1();
   else if (mode == 2) mode2();
@@ -142,5 +159,4 @@ void loop() {
 mainloop();
 //  followLine();
 encoder.getCounter(1000);
-
 }

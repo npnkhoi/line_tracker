@@ -37,7 +37,7 @@ float UltrasonicSensor::getDist() {
 
 bool UltrasonicSensor::check() {
   float tmp = this -> getDist();
-  if (tmp <= 15 && tmp != 0) {
+  if (tmp <= 25 && tmp != 0) {
     return true;
   } else {
     return false;
