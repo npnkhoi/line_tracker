@@ -4,16 +4,24 @@
 #include "Encoder.h"
 
 // Hyperparameters
-int speed = 200;
-const int IR_PINS[] = {8, 9, 10, 11, 12};
-int Kp = speed * 0.4;
 int MAX_SPEED = 255;
+int speed = 200;
+const int SPEED_RATIO = 1;
+const float speed_dynamic = (225/199)*1.00;
+const int IR_PINS[] = {8, 9, 10, 11, 12};
+const int lim[] = {0, 177, 300};
+const float left_dynamic[] = {90, MAX_SPEED/SPEED_RATIO, 0};
+const int right_dynamic[] = {speed, MAX_SPEED, 0};
+// const int left_speed[] = {-speed/SPEED_RATIO, speed/SPEED_RATIO, -speed/SPEED_RATIO, speed/SPEED_RATIO, 0};
+// const int right_speed[] = {speed, speed, speed, speed, 0};
+int Kp = speed * 0.4;
 int mode;
 int returningSpeed = 120;
 int threshold = 10;
 int speedTurn = 100;
 bool onLine = false;
 int error;
+int i_mode4 = 0;
 
 /*
  * mode 0: on-line + no obs in the front + no obs in the side
@@ -29,7 +37,7 @@ UltrasonicSensor usLeft(A0, A1);
 UltrasonicSensor usRight(A2, A3);
 UltrasonicSensor usSide(A4, A5);
 IRSensor irSensor(IR_PINS);
-Encoder encoder(3,2);
+Encoder encoder(2,3);
 
 
 /* ============================================================================================ */
@@ -99,16 +107,14 @@ void mode3() {
 }
 
 void mode4() {
-  motor.turnLeft(speed);
-//  delay(240);
-//  motor.go(255, 255);
-//  delay(3600);
-//  motor.turnLeft(MAX_SPEED);
-//  delay(150);
-//  motor.go(255,255);
-//  delay(500);
-//  motor.stop();
-//  delay(5000);
+  if (encoder.rightCounter >= lim[i_mode4]) {
+    motor.go(right_dynamic[i_mode4], left_dynamic[i_mode4]);
+    Serial.print("Counter: "); Serial.println(encoder.rightCounter);
+    Serial.print("Left speed: "); Serial.println(left_dynamic[i_mode4]);
+    Serial.print("Right speed: "); Serial.println(right_dynamic[i_mode4]); 
+    i_mode4++;
+  // motor.go(255,255);
+  }  
 }
 
 void mainloop() {
@@ -135,6 +141,6 @@ void loop() {
 //  myPrint("side dist", usSide.getDist());
 mainloop();
 //  followLine();
-encoder.getCounter(240);
+encoder.getCounter(1000);
 
 }
