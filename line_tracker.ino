@@ -5,10 +5,17 @@
 #include "Display.h"
 
 // Hyperparameters
-int speed = 150;
-const int IR_PINS[] = {8, 9, 10, 11, 12};
-int Kp = speed * 0.3;
 int MAX_SPEED = 255;
+int speed = 200;
+const int SPEED_RATIO = 1;
+const float speed_dynamic = (225/199)*1.00;
+const int IR_PINS[] = {8, 9, 10, 11, 12};
+const int lim[] = {0, 177, 300};
+const float left_dynamic[] = {90, MAX_SPEED/SPEED_RATIO, 0};
+const int right_dynamic[] = {speed, MAX_SPEED, 0};
+// const int left_speed[] = {-speed/SPEED_RATIO, speed/SPEED_RATIO, -speed/SPEED_RATIO, speed/SPEED_RATIO, 0};
+// const int right_speed[] = {speed, speed, speed, speed, 0};
+int Kp = speed * 0.4;
 int mode;
 int returningSpeed = 120;
 int threshold = 10;
@@ -35,7 +42,6 @@ Encoder encoder(3,2);
 Display screen(displayPins);
 
 
-/* ============================================================================================ */
 
 void setup()
 {
@@ -113,16 +119,14 @@ void mode3() {
 }
 
 void mode4() {
-  motor.turnLeft(speed);
-//  delay(240);
-//  motor.go(255, 255);
-//  delay(3600);
-//  motor.turnLeft(MAX_SPEED);
-//  delay(150);
-//  motor.go(255,255);
-//  delay(500);
-//  motor.stop();
-//  delay(5000);
+  if (encoder.rightCounter >= lim[i_mode4]) {
+    motor.go(right_dynamic[i_mode4], left_dynamic[i_mode4]);
+    Serial.print("Counter: "); Serial.println(encoder.rightCounter);
+    Serial.print("Left speed: "); Serial.println(left_dynamic[i_mode4]);
+    Serial.print("Right speed: "); Serial.println(right_dynamic[i_mode4]); 
+    i_mode4++;
+  // motor.go(255,255);
+  }  
 }
 
 void updateLight() {
@@ -154,5 +158,11 @@ void myPrint(char *s, float x) {
 }
 
 void loop() {
-  mainloop();
+//  myPrint("mode", mode);
+//  myPrint("left dist", usLeft.getDist());
+//  myPrint("right dist", usRight.getDist());
+//  myPrint("side dist", usSide.getDist());
+mainloop();
+//  followLine();
+encoder.getCounter(1000);
 }
