@@ -6,7 +6,7 @@
 
 // Hyperparameters
 int MAX_SPEED = 255;
-int speed = 200;
+int speed =180;
 const int SPEED_RATIO = 1;
 const float speed_dynamic = (225/199)*1.00;
 const int IR_PINS[] = {8, 9, 10, 11, 12};
@@ -15,13 +15,13 @@ const float left_dynamic[] = {90, MAX_SPEED/SPEED_RATIO, 0};
 const int right_dynamic[] = {speed, MAX_SPEED, 0};
 // const int left_speed[] = {-speed/SPEED_RATIO, speed/SPEED_RATIO, -speed/SPEED_RATIO, speed/SPEED_RATIO, 0};
 // const int right_speed[] = {speed, speed, speed, speed, 0};
-int Kp = speed * 0.4;
+int Kp = 52;
 int mode;
 int returningSpeed = 120;
 int threshold = 10;
 int speedTurn = 100;
 bool onLine = false;
-int error;
+float error = 0, prevError = 0;
 const int displayPins[] = {A0, A1, 13};
 
 /*
@@ -63,7 +63,9 @@ void mode0() {
   }
 
   if (abs(error) == 4) {
-    motor.stop();
+//    motor.stop();
+    error = prevError;  
+    motor.pControl(error);
   } else {
     motor.pControl(error);
   }
@@ -87,7 +89,7 @@ void mode2() {
   if (irSensor.countOnes() >= 2){
     onLine = true;
   }
-  if (onLine == true && error == 4) {
+  if (onLine == true && irSensor.countOnes() <= 1) {
 //    motor.motor_left_Lui(speed);
 //    motor.motor_right_Lui(speed);
 //    delay(50);
@@ -110,7 +112,7 @@ void mode2() {
 }
 
 void mode3() {
-  if (abs(error) <= 3 && !usFront.check() && !usSide.check()) {
+  if (abs(error) <= 1 && !usFront.check() && !usSide.check()) {
     motor.stop();
     mode = 0;
     return;
@@ -119,14 +121,15 @@ void mode3() {
 }
 
 void mode4() {
-  if (encoder.rightCounter >= lim[i_mode4]) {
-    motor.go(right_dynamic[i_mode4], left_dynamic[i_mode4]);
-    Serial.print("Counter: "); Serial.println(encoder.rightCounter);
-    Serial.print("Left speed: "); Serial.println(left_dynamic[i_mode4]);
-    Serial.print("Right speed: "); Serial.println(right_dynamic[i_mode4]); 
-    i_mode4++;
-  // motor.go(255,255);
-  }  
+  motor.stop();
+//  if (encoder.rightCounter >= lim[i_mode4]) {
+//    motor.go(right_dynamic[i_mode4], left_dynamic[i_mode4]);
+//    Serial.print("Counter: "); Serial.println(encoder.rightCounter);
+//    Serial.print("Left speed: "); Serial.println(left_dynamic[i_mode4]);
+//    Serial.print("Right speed: "); Serial.println(right_dynamic[i_mode4]); 
+//    i_mode4++;
+//  // motor.go(255,255);
+//  }  
 }
 
 void updateLight() {
@@ -134,13 +137,14 @@ void updateLight() {
 }
 
 void mainloop() {
+  prevError = error;
   error = irSensor.getError(); // very important!!
-  Serial.print("mode: ");
-  Serial.println(mode);
-  Serial.print("usFront");
-  Serial.println(usFront.getDist());
-  Serial.print("usSide");
-  Serial.println(usSide.getDist());
+//  Serial.print("mode: ");
+//  Serial.println(mode);
+//  Serial.print("usFront");
+//  Serial.println(usFront.getDist());
+//  Serial.print("usSide");
+//  Serial.println(usSide.getDist());
 //  mode0();
   screen.showMode(mode);
   if (mode == 0) mode0();

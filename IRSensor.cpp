@@ -16,7 +16,7 @@ void IRSensor::trackLine() {
   }
 }
 
-int IRSensor::offSide(int near , int far) {
+float IRSensor::offSide(int near , int far) {
   // return either 1, 2, or 3
   if ((near == 1) && (far == 0)) {
     return 1;
@@ -29,7 +29,7 @@ int IRSensor::offSide(int near , int far) {
   }
 }
 
-int IRSensor::getError() {
+float IRSensor::getError() {
   // return an error in range [-4, 4]
   this -> trackLine();
   if ((this -> irVal[0] == 0) && (this -> irVal[1] == 0) && (this -> irVal[2] == 0) && (this -> irVal[3] == 0) && (this -> irVal[4] == 0)) {
@@ -49,10 +49,10 @@ int IRSensor::getError() {
         }
      } else {
         if (this -> irVal[0] == 1 || this -> irVal[1] == 1) {
-           int k = offSide(this -> irVal[1], this -> irVal[0]);
+           float k = offSide(this -> irVal[1], this -> irVal[0]);
            return -k;
         } else {
-           int k = offSide(this -> irVal[3], this -> irVal[4]);
+           float k = offSide(this -> irVal[3], this -> irVal[4]);
            return k;
         }
      }

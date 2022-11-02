@@ -57,18 +57,14 @@ void Motor::motor_left_Tien(int speed) {
 void Motor::go(int speedRight, int speedLeft) {
   if (speedRight < 0) {
     this -> motor_right_Lui(abs(speedRight));
-    this -> motor_left_Tien(speedLeft);
-  }
-  else {
+  } else {
     this -> motor_right_Tien(speedRight);
-    this -> motor_left_Tien(speedLeft);
   }
+  
   if (speedLeft < 0) {
-    this -> motor_right_Tien(speedRight);
     this -> motor_left_Lui(abs(speedLeft));
   }
   else {
-    this -> motor_right_Tien(speedRight);
     this -> motor_left_Tien(speedLeft);
   }
 }
@@ -90,6 +86,8 @@ void Motor::pControl(float error) {
   int delta = (this -> kp) * error;
   int speedLeft = this -> baseSpeed + delta;
   int speedRight = this -> baseSpeed - delta;
+  speedLeft = max(speedLeft, 0);
+  speedRight = max(speedRight, 0);
   Serial.print("speeds:");
   Serial.print(speedLeft);
   Serial.print(" ");

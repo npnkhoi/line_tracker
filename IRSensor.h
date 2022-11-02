@@ -7,11 +7,11 @@ class IRSensor{
     IRSensor(const int *_pins);
     void trackLine();
     int getErrorTest();
-    int getError();
+    float getError();
     int pins[5], irVal[5];
     int countOnes();
   private:
-    int offSide(int near , int far);
+    float offSide(int near , int far);
 };
 
 #endif
