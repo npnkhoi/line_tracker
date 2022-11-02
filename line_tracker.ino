@@ -82,9 +82,9 @@ void mode2() {
     onLine = true;
   }
   if (onLine == true && error == 4) {
-    motor.motor_left_Lui(speed);
-    motor.motor_right_Lui(speed);
-    delay(50);
+//    motor.motor_left_Lui(speed);
+//    motor.motor_right_Lui(speed);
+//    delay(50);
     motor.stop();
     mode = 3;
     return;
@@ -92,9 +92,15 @@ void mode2() {
   
   // following object
   float diff = usSide.getDist() - threshold;
-  if (diff > 50) diff = 0;
-  float error_2 = diff / threshold;
-  motor.pControl(error_2); // TODO: put speed and Kp to motor attributes
+  if (diff > 50) {
+//    motor.turnRight(speed);
+    motor.go(speed, speed);
+    return;
+  } else {
+    float error_2 = diff / threshold;
+    motor.pControl(error_2); // TODO: put speed and Kp to motor attributes  
+  }
+  
 }
 
 void mode3() {
