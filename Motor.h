@@ -18,9 +18,9 @@ class Motor {
     void turnLeft(int speed);
     void stop();
     void pControl(float error);
-  private:
+    float pid(float current, float setpoint, float kp, float ki, float kd);
     int _in1, _in2, _in3, _in4, baseSpeed;
-    float kp;
+    float kp, err_p, err_i, err_d;
 };
 
 #endif
