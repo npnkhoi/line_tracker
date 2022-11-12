@@ -11,14 +11,16 @@ int MAX_SPEED = 255;
 int speed = 180;
 const int SPEED_RATIO = 1;
 const float speed_dynamic = (225/199)*1.00;
-const int lim[] = {0, 177, 300};
-const float left_dynamic[] = {90, MAX_SPEED/SPEED_RATIO, 0};
-const int right_dynamic[] = {speed, MAX_SPEED, 0};
+//const int lim[] = {0, 177, 300};
+const int lim_new[] = {0, 112, (112 + 16), (112 + 16 +200), 500};
+const float left_dynamic[] = {MAX_SPEED, -MAX_SPEED, MAX_SPEED, 0};
+const int right_dynamic[] = {MAX_SPEED, MAX_SPEED, MAX_SPEED, 0};
 int returningSpeed = 120;
 int threshold = 10;
 int speedTurn = 100;
+int i_mode4 = 0;
 float kp_line = 52;
-float kp = 1, ki = 0.1, kd = 0.1;
+float kp = 20, ki = 1, kd = 1;
 // const int left_speed[] = {-speed/SPEED_RATIO, speed/SPEED_RATIO, -speed/SPEED_RATIO, speed/SPEED_RATIO, 0};
 // const int right_speed[] = {speed, speed, speed, speed, 0};
 
@@ -49,7 +51,7 @@ void setup()
   Serial.begin(9600);
   Serial.println("Setting up ...");
   Serial.println("Done setup.");
-  mode = 0;
+  mode = 4;
 }
 
 void mode0() {
@@ -124,24 +126,25 @@ void mode3() {
 void mode4() {
   // Condition: encoder.leftCounter and rightCounter have been set to 0 before switching mode from 0 -> 4
   // Khoi: This code is only for the circular driving
-  float defaultLeftPwm = 110.0; // this will be adjusted dynamically
-  float defaultRightPwm = 250.0; // this PWM is fixed
-  float expectedRatio = defaultLeftPwm/defaultRightPwm;
-  float delta =  motor.pid(encoder.leftCounter, encoder.rightCounter * expectedRatio, kp, ki, kd);
-  motor.go(defaultLeftPwm + delta, defaultRightPwm);
 
   // TODO: wrap the PID logic above by the overall finishing path
 
-  // Legacy code
-  // motor.stop();
-//  if (encoder.rightCounter >= lim[i_mode4]) {
-//    motor.go(right_dynamic[i_mode4], left_dynamic[i_mode4]);
+//   Legacy code
+//   motor.stop();
+//    float defaultLeftPwm = 85.0; // this will be adjusted dynamically
+//    float defaultRightPwm = 195.0; // this PWM is fixed
+//    float expectedRatio = defaultLeftPwm/defaultRightPwm;
+//    float delta =  motor.pid(encoder.leftCounter, encoder.rightCounter * expectedRatio, kp, ki, kd);
+//    motor.go(defaultLeftPwm + delta, defaultRightPwm);
+  if (encoder.rightCounter >= lim_new[i_mode4]) {
+      motor.go(right_dynamic[i_mode4], left_dynamic[i_mode4]);
 //    Serial.print("Counter: "); Serial.println(encoder.rightCounter);
 //    Serial.print("Left speed: "); Serial.println(left_dynamic[i_mode4]);
 //    Serial.print("Right speed: "); Serial.println(right_dynamic[i_mode4]); 
-//    i_mode4++;
-//  // motor.go(255,255);
-//  }
+      i_mode4++;
+      
+  // motor.go(255,255);
+  }
 }
 
 void mainloop() {
@@ -176,5 +179,5 @@ void loop() {
 //  myPrint("side dist", usSide.getDist());
 mainloop();
 //  followLine();
-encoder.getCounter(1000);
+encoder.getCounter(100);
 }

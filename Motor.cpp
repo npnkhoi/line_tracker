@@ -61,17 +61,21 @@ void Motor::motor_left_Tien(int speed) {
 }
 
 void Motor::go(int speedRight, int speedLeft) {
-  if (speedRight < 0) {
+  if (speedRight < 0 and speedLeft < 0){
     this -> motor_right_Lui(abs(speedRight));
-  } else {
+    this -> motor_left_Lui (abs(speedLeft));
+  } 
+  else if (speedRight > 0 and speedLeft < 0) {
     this -> motor_right_Tien(speedRight);
-  }
-  
-  if (speedLeft < 0) {
     this -> motor_left_Lui(abs(speedLeft));
+  } 
+  else if (speedRight < 0 and speedLeft > 0){
+    this -> motor_right_Lui(abs(speedRight));
+    this -> motor_left_Tien(speedLeft);
   }
   else {
     this -> motor_left_Tien(speedLeft);
+    this -> motor_right_Tien(speedRight);
   }
 }
 
