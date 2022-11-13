@@ -11,9 +11,20 @@ int MAX_SPEED = 255;
 int speed = 180;
 const int SPEED_RATIO = 1;
 const float speed_dynamic = (225/199)*1.00;
+<<<<<<< Updated upstream
 const int lim[] = {0, 177, 300};
 const float left_dynamic[] = {90, MAX_SPEED/SPEED_RATIO, 0};
 const int right_dynamic[] = {speed, MAX_SPEED, 0};
+=======
+//const int lim[] = {0, 177, 300};
+const int lim[] = {10,190,10,60};
+const int lim_new[] = {0, lim[0], lim[0] + lim[1],lim[0] + lim[1] + lim[2], lim[0] + lim[1] + lim[2] + lim[3], 500};
+//1: old line, 2: new line
+const float left_dynamic_1[] = {-MAX_SPEED, MAX_SPEED,-MAX_SPEED, MAX_SPEED, 0};
+const int right_dynamic_1[] = {MAX_SPEED, MAX_SPEED,MAX_SPEED, MAX_SPEED, 0};
+//const int left_dynamic_2[] = {MAX_SPEED, MAX_SPEED,MAX_SPEED, MAX_SPEED, 0};
+//const int right_dynamic_2[] = {(-MAX_SPEED), MAX_SPEED,(-MAX_SPEED), MAX_SPEED, 0};
+>>>>>>> Stashed changes
 int returningSpeed = 120;
 int threshold = 10;
 int speedTurn = 100;
@@ -132,10 +143,23 @@ void mode4() {
 
   // TODO: wrap the PID logic above by the overall finishing path
 
+<<<<<<< Updated upstream
   // Legacy code
   // motor.stop();
 //  if (encoder.rightCounter >= lim[i_mode4]) {
 //    motor.go(right_dynamic[i_mode4], left_dynamic[i_mode4]);
+=======
+//   Legacy code
+//   motor.stop();
+//    float defaultLeftPwm = 85.0; // this will be adjusted dynamically
+//    float defaultRightPwm = 195.0; // this PWM is fixed
+//    float expectedRatio = defaultLeftPwm/defaultRightPwm;
+//    float delta =  motor.pid(encoder.leftCounter, encoder.rightCounter * expectedRatio, kp, ki, kd);
+//    motor.go(defaultLeftPwm + delta, defaultRightPwm);
+  encoder.getCounter(100);
+  if (encoder.rightCounter >= lim_new[i_mode4]) {
+      motor.go(right_dynamic_1[i_mode4], left_dynamic_1[i_mode4]);
+>>>>>>> Stashed changes
 //    Serial.print("Counter: "); Serial.println(encoder.rightCounter);
 //    Serial.print("Left speed: "); Serial.println(left_dynamic[i_mode4]);
 //    Serial.print("Right speed: "); Serial.println(right_dynamic[i_mode4]); 
@@ -176,5 +200,9 @@ void loop() {
 //  myPrint("side dist", usSide.getDist());
 mainloop();
 //  followLine();
+<<<<<<< Updated upstream
 encoder.getCounter(1000);
+=======
+
+>>>>>>> Stashed changes
 }
