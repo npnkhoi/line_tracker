@@ -100,6 +100,11 @@ void mode2() {
   
   // following object
   float diff = usSide.getDist() - threshold;
+  Serial.print("diff:");
+  Serial.println(diff);
+  Serial.print("dist:");
+  Serial.println(usSide.getDist());
+//  delay(100);
   if (diff > 50) {
 //    motor.turnRight(speed);
     motor.go(speed, speed);
@@ -155,18 +160,13 @@ void mainloop() {
   
 }
 
-void myPrint(char *s, float x) {
-  Serial.print(s);
-  Serial.print(" ");
-  Serial.println(x);
-}
-
 void loop() {
 //  myPrint("mode", mode);
 //  myPrint("left dist", usLeft.getDist());
 //  myPrint("right dist", usRight.getDist());
 //  myPrint("side dist", usSide.getDist());
-mainloop();
+//mainloop();
+    mainloop();
 //  followLine();
-encoder.getCounter(1000);
+//encoder.getCounter(1000);
 }

@@ -66,7 +66,7 @@ int IRSensor::countOnes() {
   for (int i = 0; i < 5; ++ i) {
     ret += abs(this -> irVal[i]);
   }
-  Serial.print("count ones: ");
-  Serial.println(ret);
+//  Serial.print("count ones: ");
+//  Serial.println(ret);
   return ret;
 }
