@@ -37,6 +37,7 @@ void Encoder::getCounter (int time_delay) {
 }
 
 void Encoder::resetCounter(){
+  // Reset both counters, and present
   leftCounter = 0;
   rightCounter = 0;
   present = 0;

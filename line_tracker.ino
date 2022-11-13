@@ -5,24 +5,28 @@
 #include "Display.h"
 
 // Hyperparameters
+const int IR_PINS[] = {8, 9, 10, 11, 12};
+const int displayPins[] = {A0, A1, 13};
 int MAX_SPEED = 255;
-int speed =180;
+int speed = 180;
 const int SPEED_RATIO = 1;
 const float speed_dynamic = (225/199)*1.00;
-const int IR_PINS[] = {8, 9, 10, 11, 12};
-const int lim[] = {0, 177, 300};
-const float left_dynamic[] = {90, MAX_SPEED/SPEED_RATIO, 0};
-const int right_dynamic[] = {speed, MAX_SPEED, 0};
-// const int left_speed[] = {-speed/SPEED_RATIO, speed/SPEED_RATIO, -speed/SPEED_RATIO, speed/SPEED_RATIO, 0};
-// const int right_speed[] = {speed, speed, speed, speed, 0};
-int Kp = 52;
-int mode;
+//const int lim[] = {0, 177, 300};
+const int lim_new[] = {0, 112, (112 + 16), (112 + 16 +200), 500};
+const float left_dynamic[] = {MAX_SPEED, -MAX_SPEED, MAX_SPEED, 0};
+const int right_dynamic[] = {MAX_SPEED, MAX_SPEED, MAX_SPEED, 0};
 int returningSpeed = 120;
 int threshold = 10;
 int speedTurn = 100;
+int i_mode4 = 0;
+float kp_line = 52;
+float kp = 20, ki = 1, kd = 1;
+// const int left_speed[] = {-speed/SPEED_RATIO, speed/SPEED_RATIO, -speed/SPEED_RATIO, speed/SPEED_RATIO, 0};
+// const int right_speed[] = {speed, speed, speed, speed, 0};
+
+int mode;
 bool onLine = false;
 float error = 0, prevError = 0;
-const int displayPins[] = {A0, A1, 13};
 
 /*
  * mode 0: on-line + no obs in the front + no obs in the side
@@ -33,8 +37,7 @@ const int displayPins[] = {A0, A1, 13};
  */
 
 // Declare the devices
-Motor motor(4, 5, 7, 6, speed, Kp);
-//UltrasonicSensor usLeft(A0, A1);
+Motor motor(4, 5, 7, 6, speed, kp_line);
 UltrasonicSensor usFront(A2, A3);
 UltrasonicSensor usSide(A4, A5);
 IRSensor irSensor(IR_PINS);
@@ -45,11 +48,10 @@ Display screen(displayPins);
 
 void setup()
 {
-    
   Serial.begin(9600);
   Serial.println("Setting up ...");
   Serial.println("Done setup.");
-  mode = 0;
+  mode = 4;
 }
 
 void mode0() {
@@ -58,12 +60,13 @@ void mode0() {
     return;
   }
  if ((irSensor.irVal[0] == 1) && (irSensor.irVal[1] == 1) && (irSensor.irVal[2] == 1) && (irSensor.irVal[3] == 1) && (irSensor.irVal[4] == 1)) {
+   encoder.resetCounter();
     mode = 4;
     return; 
   }
 
   if (abs(error) == 4) {
-//    motor.stop();
+    motor.stop();
     error = prevError;  
     motor.pControl(error);
   } else {
@@ -126,19 +129,27 @@ void mode3() {
 }
 
 void mode4() {
-  motor.stop();
-//  if (encoder.rightCounter >= lim[i_mode4]) {
-//    motor.go(right_dynamic[i_mode4], left_dynamic[i_mode4]);
+  // Condition: encoder.leftCounter and rightCounter have been set to 0 before switching mode from 0 -> 4
+  // Khoi: This code is only for the circular driving
+
+  // TODO: wrap the PID logic above by the overall finishing path
+
+//   Legacy code
+//   motor.stop();
+//    float defaultLeftPwm = 85.0; // this will be adjusted dynamically
+//    float defaultRightPwm = 195.0; // this PWM is fixed
+//    float expectedRatio = defaultLeftPwm/defaultRightPwm;
+//    float delta =  motor.pid(encoder.leftCounter, encoder.rightCounter * expectedRatio, kp, ki, kd);
+//    motor.go(defaultLeftPwm + delta, defaultRightPwm);
+  if (encoder.rightCounter >= lim_new[i_mode4]) {
+      motor.go(right_dynamic[i_mode4], left_dynamic[i_mode4]);
 //    Serial.print("Counter: "); Serial.println(encoder.rightCounter);
 //    Serial.print("Left speed: "); Serial.println(left_dynamic[i_mode4]);
 //    Serial.print("Right speed: "); Serial.println(right_dynamic[i_mode4]); 
-//    i_mode4++;
-//  // motor.go(255,255);
-//  }  
-}
-
-void updateLight() {
-  
+      i_mode4++;
+      
+  // motor.go(255,255);
+  }
 }
 
 void mainloop() {
@@ -165,8 +176,5 @@ void loop() {
 //  myPrint("left dist", usLeft.getDist());
 //  myPrint("right dist", usRight.getDist());
 //  myPrint("side dist", usSide.getDist());
-//mainloop();
     mainloop();
-//  followLine();
-//encoder.getCounter(1000);
 }
