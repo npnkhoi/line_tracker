@@ -58,7 +58,8 @@ void mode0() {
     mode = 1;
     return;
   }
- if ((irSensor.irVal[0] == 1) && (irSensor.irVal[1] == 1) && (irSensor.irVal[2] == 1) && (irSensor.irVal[3] == 1) && (irSensor.irVal[4] == 1)) {
+ if (irSensor.countOnes() >= 4){
+// if ((irSensor.irVal[0] == 1) && (irSensor.irVal[1] == 1) && (irSensor.irVal[2] == 1) && (irSensor.irVal[3] == 1) && (irSensor.irVal[4] == 1)) {
    encoder.resetCounter();
     mode = 4;
     return; 
@@ -100,7 +101,8 @@ void mode2() {
   // following object
   float diff = usSide.getDist() - threshold;
   if (diff > 50) {
-    motor.go(speed, speed);
+    motor.pControl(2.75);
+//    motor.go(speed, speed);
     return;
   } else {
     float error_2 = diff / threshold;
@@ -136,7 +138,7 @@ void mainloop() {
   else if (mode == 1) mode1();
   else if (mode == 2) mode2();
   else if (mode == 3) mode3();
-//  else if (mode == 4) mode4(); 
+  else if (mode == 4) mode4(); 
   
 }
 
