@@ -103,11 +103,11 @@ void Motor::pControl(float error) {
   int speedRight = this -> baseSpeed - delta;
   speedLeft = max(speedLeft, 0);
   speedRight = max(speedRight, 0);
-  // Serial.print("speeds:");
-  // Serial.print(speedLeft);
-  // Serial.print(" ");
-  // Serial.print(speedRight);
-  // Serial.print("\n");
+  Serial.print("speeds:");
+  Serial.print(speedLeft);
+  Serial.print(" ");
+  Serial.print(speedRight);
+  Serial.print("\n");
   this -> go(speedRight, (float) speedLeft);
 }
 

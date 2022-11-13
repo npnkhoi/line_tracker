@@ -20,7 +20,7 @@ int threshold = 10;
 int speedTurn = 100;
 int i_mode4 = 0;
 float kp_line = 52;
-float kp = 20, ki = 1, kd = 1;
+float kp = 40, ki = 4, kd = 150;
 // const int left_speed[] = {-speed/SPEED_RATIO, speed/SPEED_RATIO, -speed/SPEED_RATIO, speed/SPEED_RATIO, 0};
 // const int right_speed[] = {speed, speed, speed, speed, 0};
 
@@ -51,7 +51,6 @@ void setup()
   Serial.begin(9600);
   Serial.println("Setting up ...");
   Serial.println("Done setup.");
-  mode = 4;
 }
 
 void mode0() {
@@ -80,8 +79,9 @@ void mode1() {
     onLine = false;
     return;
   }
-//    delay(100);
     motor.turnLeft(speed);
+    Serial.print("Front:");
+    Serial.println(usFront.getDist());
 }
 
 void mode2() {
@@ -93,9 +93,6 @@ void mode2() {
     onLine = true;
   }
   if (onLine == true && irSensor.countOnes() <= 1) {
-//    motor.motor_left_Lui(speed);
-//    motor.motor_right_Lui(speed);
-//    delay(50);
     motor.stop();
     mode = 3;
     return;
@@ -103,24 +100,17 @@ void mode2() {
   
   // following object
   float diff = usSide.getDist() - threshold;
-  Serial.print("diff:");
-  Serial.println(diff);
-  Serial.print("dist:");
-  Serial.println(usSide.getDist());
-//  delay(100);
   if (diff > 50) {
-//    motor.turnRight(speed);
     motor.go(speed, speed);
-    return;
   } else {
     float error_2 = diff / threshold;
-    motor.pControl(error_2); // TODO: put speed and Kp to motor attributes  
+    motor.pControl(error_2); // TODO: put speed and Kp to motor attributes 
   }
   
 }
 
 void mode3() {
-  if (abs(error) <= 1 && !usFront.check() && !usSide.check()) {
+  if (abs(error) <= 3 && !usFront.check() && !usSide.check()) {
     motor.stop();
     mode = 0;
     return;
@@ -129,39 +119,15 @@ void mode3() {
 }
 
 void mode4() {
-  // Condition: encoder.leftCounter and rightCounter have been set to 0 before switching mode from 0 -> 4
-  // Khoi: This code is only for the circular driving
-
-  // TODO: wrap the PID logic above by the overall finishing path
-
-//   Legacy code
-//   motor.stop();
-//    float defaultLeftPwm = 85.0; // this will be adjusted dynamically
-//    float defaultRightPwm = 195.0; // this PWM is fixed
-//    float expectedRatio = defaultLeftPwm/defaultRightPwm;
-//    float delta =  motor.pid(encoder.leftCounter, encoder.rightCounter * expectedRatio, kp, ki, kd);
-//    motor.go(defaultLeftPwm + delta, defaultRightPwm);
   if (encoder.rightCounter >= lim_new[i_mode4]) {
       motor.go(right_dynamic[i_mode4], left_dynamic[i_mode4]);
-//    Serial.print("Counter: "); Serial.println(encoder.rightCounter);
-//    Serial.print("Left speed: "); Serial.println(left_dynamic[i_mode4]);
-//    Serial.print("Right speed: "); Serial.println(right_dynamic[i_mode4]); 
       i_mode4++;
-      
-  // motor.go(255,255);
   }
 }
 
 void mainloop() {
   prevError = error;
   error = irSensor.getError(); // very important!!
-//  Serial.print("mode: ");
-//  Serial.println(mode);
-//  Serial.print("usFront");
-//  Serial.println(usFront.getDist());
-//  Serial.print("usSide");
-//  Serial.println(usSide.getDist());
-//  mode0();
   screen.showMode(mode);
   if (mode == 0) mode0();
   else if (mode == 1) mode1();
@@ -172,9 +138,5 @@ void mainloop() {
 }
 
 void loop() {
-//  myPrint("mode", mode);
-//  myPrint("left dist", usLeft.getDist());
-//  myPrint("right dist", usRight.getDist());
-//  myPrint("side dist", usSide.getDist());
     mainloop();
 }
