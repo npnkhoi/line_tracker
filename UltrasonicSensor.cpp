@@ -30,8 +30,8 @@ float UltrasonicSensor::getDist() {
   duration = pulseIn(this -> _echo, HIGH);
   // Tính khoảng cách đến vật.
   distance = float(duration/2/29.412);
-  Serial.print("get dist: ");
-  Serial.println(distance);
+  // Serial.print("get dist: ");
+  // Serial.println(distance);
   return distance;
 }
 

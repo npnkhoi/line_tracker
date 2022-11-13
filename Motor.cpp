@@ -14,10 +14,10 @@ Motor::Motor(int in1, int in2, int in3, int in4, int _baseSpeed, float _kp) {
   baseSpeed = _baseSpeed;
   
   // For PID control
-  kp = _kp;
-  this -> err_p = 0;
-  this -> err_i = 0;
-  this -> err_d = 0;
+  // kp = _kp;
+  // this -> err_p = 0;
+  // this -> err_i = 0;
+  // this -> err_d = 0;
 
   // init the pins
   pinMode(in1, OUTPUT);
@@ -92,9 +92,9 @@ void Motor::stop() {
   this -> motor_right_Dung();
 }
 
-void Motor::pControl(float error) {
+void Motor::pControl(float error, float kp) {
   // Proportional control
-  int delta = (this -> kp) * error;
+  int delta = kp * error;
   int speedLeft = this -> baseSpeed + delta;
   int speedRight = this -> baseSpeed - delta;
   speedLeft = max(speedLeft, 0);
@@ -107,14 +107,15 @@ void Motor::pControl(float error) {
   this -> go(speedRight, (float) speedLeft);
 }
 
-float Motor::pid(float current, float setpoint, float kp, float ki, float kd) {
+float Motor::pid(float current, float setpoint, float kp, float ki, float kd, float &p, float &i, float &d) {
   // return a recommendation of shift in signal to correct the error
   
   float e = current - setpoint;
   
   // update I, D, P
-  this -> err_i += e;
-  this -> err_d = e - this -> err_p;
-  this -> err_p = e;
-  return kp * (this -> err_p) + ki * (this -> err_i) + kd * (this -> err_d);
+    
+  i += e;
+  d = e - p;
+  p = e;
+  return kp * p + ki * i + kd * d;
 }

@@ -8,14 +8,14 @@ Display::Display(const int _pins[3]) {
 }
 
 void Display::setCode(int code) {
-  Serial.println(code);
+  // Serial.println(code);
   for (int i = 0; i < 3; ++i) {
 //    Serial.print(this -> pins[i]);
 //    Serial.print(" ");
 //    Serial.print((code >> i & 1) ? "HIGH " : "LOW ");
     digitalWrite(this -> pins[i], (code >> i & 1) ? HIGH : LOW);
   }
-  Serial.println();
+  // Serial.println();
 }
 
 void Display::showMode(int mode) {

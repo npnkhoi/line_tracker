@@ -17,10 +17,10 @@ class Motor {
     void turnRight(int speed);
     void turnLeft(int speed);
     void stop();
-    void pControl(float error);
-    float pid(float current, float setpoint, float kp, float ki, float kd);
+    void pControl(float error, float kp);
+    float pid(float current, float setpoint, float kp, float ki, float kdj, float &p, float &i, float &d);
     int _in1, _in2, _in3, _in4, baseSpeed;
-    float kp, err_p, err_i, err_d;
+    // float kp, err_p, err_i, err_d;
 };
 
 #endif
