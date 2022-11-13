@@ -11,6 +11,7 @@ int MAX_SPEED = 255;
 int speed = 180;
 const int SPEED_RATIO = 1;
 const float speed_dynamic = (225/199)*1.00;
+<<<<<<< HEAD
 //const int lim[] = {0, 177, 300};
 const int lim[] = {10,190,10,60};
 const int lim_new[] = {0, lim[0], lim[0] + lim[1],lim[0] + lim[1] + lim[2], lim[0] + lim[1] + lim[2] + lim[3], 500};
@@ -19,15 +20,25 @@ const int lim_new[] = {0, lim[0], lim[0] + lim[1],lim[0] + lim[1] + lim[2], lim[
 //const int right_dynamic_1[] = {MAX_SPEED, MAX_SPEED,MAX_SPEED, MAX_SPEED, 0};
 const int left_dynamic_2[] = {MAX_SPEED, MAX_SPEED,MAX_SPEED, MAX_SPEED, 0};
 const int right_dynamic_2[] = {(-MAX_SPEED), MAX_SPEED,(-MAX_SPEED), MAX_SPEED, 0};
+=======
+const int lim[] = {10,190,10,60};
+const int lim_new[] = {0, lim[0], lim[0] + lim[1],lim[0] + lim[1] + lim[2], lim[0] + lim[1] + lim[2] + lim[3], 500};
+//1: old line, 2: new line
+const int left_dynamic_1[] = {-MAX_SPEED, MAX_SPEED,-MAX_SPEED, MAX_SPEED, 0};
+const int right_dynamic_1[] = {MAX_SPEED, MAX_SPEED,MAX_SPEED, MAX_SPEED, 0};
+>>>>>>> afdcd414b30f6a6241fdb5273a66e4cfa0bac6f6
 int returningSpeed = 120;
 int threshold = 10;
 int speedTurn = 100;
 int i_mode4 = 0;
 float kp_line = 52;
+<<<<<<< HEAD
 float kp = 20, ki = 1, kd = 1;
 // const int left_speed[] = {-speed/SPEED_RATIO, speed/SPEED_RATIO, -speed/SPEED_RATIO, speed/SPEED_RATIO, 0};
 // const int right_speed[] = {speed, speed, speed, speed, 0};
 
+=======
+>>>>>>> afdcd414b30f6a6241fdb5273a66e4cfa0bac6f6
 int mode;
 bool onLine = false;
 float error = 0, prevError = 0;
@@ -97,9 +108,6 @@ void mode2() {
     onLine = true;
   }
   if (onLine == true && irSensor.countOnes() <= 1) {
-//    motor.motor_left_Lui(speed);
-//    motor.motor_right_Lui(speed);
-//    delay(50);
     motor.stop();
     mode = 3;
     return;
@@ -108,12 +116,12 @@ void mode2() {
   // following object
   float diff = usSide.getDist() - threshold;
   if (diff > 50) {
-//    motor.turnRight(speed);
     motor.go(speed, speed);
     return;
   } else {
     float error_2 = diff / threshold;
-    motor.pControl(error_2); // TODO: put speed and Kp to motor attributes  
+    motor.pControl(error_2); // TODO: put speed and Kp to motor attributes 
+    return; 
   }
   
 }
@@ -127,6 +135,7 @@ void mode3() {
     motor.turnLeft(returningSpeed);
 }
 
+<<<<<<< HEAD
 void mode4() {
   // Condition: encoder.leftCounter and rightCounter have been set to 0 before switching mode from 0 -> 4
   // Khoi: This code is only for the circular driving
@@ -151,6 +160,17 @@ void mode4() {
   // motor.go(255,255);
   }
 }
+=======
+//void mode4() {
+//  // Condition: encoder.leftCounter and rightCounter have been set to 0 before switching mode from 0 -> 4
+//  // Khoi: This code is only for the circular driving
+//  float defaultLeftPwm = 110.0; // this will be adjusted dynamically
+//  float defaultRightPwm = 250.0; // this PWM is fixed
+//  float expectedRatio = defaultLeftPwm/defaultRightPwm;
+//  float delta =  motor.pid(encoder.leftCounter, encoder.rightCounter * expectedRatio, kp, ki, kd);
+//  motor.go(defaultLeftPwm + delta, defaultRightPwm);
+//}
+>>>>>>> afdcd414b30f6a6241fdb5273a66e4cfa0bac6f6
 
 void mainloop() {
   prevError = error;
@@ -160,7 +180,7 @@ void mainloop() {
   else if (mode == 1) mode1();
   else if (mode == 2) mode2();
   else if (mode == 3) mode3();
-  else if (mode == 4) mode4(); 
+//  else if (mode == 4) mode4(); 
   
 }
 
@@ -177,5 +197,8 @@ void loop() {
 //  myPrint("side dist", usSide.getDist());
 mainloop();
 //  followLine();
+<<<<<<< HEAD
 
+=======
+>>>>>>> afdcd414b30f6a6241fdb5273a66e4cfa0bac6f6
 }
