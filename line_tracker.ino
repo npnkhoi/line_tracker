@@ -11,18 +11,27 @@ int MAX_SPEED = 255;
 int speed = 180;
 const int SPEED_RATIO = 1;
 const float speed_dynamic = (225/199)*1.00;
-const int lim_1[] = {10,190,10,60};
-const int lim_run_1[] = {0, lim_1[0], lim_1[0] + lim_1[1],lim_1[0] + lim_1[1] + lim_1[2], lim_1[0] + lim_1[1] + lim_1[2] + lim_1[3], 500};
+
 //1: old line, 2: new line
-const float left_dynamic_1[] = {-MAX_SPEED, MAX_SPEED,-MAX_SPEED, MAX_SPEED, 0};
-const int right_dynamic_1[] = {MAX_SPEED, MAX_SPEED,MAX_SPEED, MAX_SPEED, 0};
+const int lim_1[] = {13,192,10,60};
+const int lim_run_1[] = {0, lim_1[0], lim_1[0] + lim_1[1],lim_1[0] + lim_1[1] + lim_1[2], lim_1[0] + lim_1[1] + lim_1[2] + lim_1[3], 500};
+const int lim_2[] = {9,173,5,60};
+const int lim_run_2[] = {0, lim_2[0], lim_2[0] + lim_2[1],lim_2[0] + lim_2[1] + lim_1[2], lim_1[0] + lim_1[1] + lim_1[2] + lim_1[3], 500};
+
+//const float left_dynamic_1[] = {-MAX_SPEED, MAX_SPEED,-MAX_SPEED, MAX_SPEED, 0};
+//const int right_dynamic_1[] = {MAX_SPEED, MAX_SPEED,MAX_SPEED, MAX_SPEED, 0};
+
+const float left_dynamic_1[] = {-200, 240,-200, 240, 0};
+const int right_dynamic_1[] = {200, 240,200, 240, 0};
+
 const int left_dynamic_2[] = {MAX_SPEED, MAX_SPEED,MAX_SPEED, MAX_SPEED, 0};
 const int right_dynamic_2[] = {(-MAX_SPEED), MAX_SPEED,(-MAX_SPEED), MAX_SPEED, 0};
+
 int returningSpeed = 120;
 int threshold = 10;
 int speedTurn = 100;
 int i_mode4 = 0;
-float kp_line = 52;
+float kp_line = 60;
 int mode;
 bool onLine = false;
 float error = 0, prevError = 0;
@@ -58,16 +67,15 @@ void mode0() {
     mode = 1;
     return;
   }
- if (irSensor.countOnes() >= 4){
-// if ((irSensor.irVal[0] == 1) && (irSensor.irVal[1] == 1) && (irSensor.irVal[2] == 1) && (irSensor.irVal[3] == 1) && (irSensor.irVal[4] == 1)) {
-   encoder.resetCounter();
+// if (irSensor.countOnes() >= 4){
+ if ((irSensor.irVal[0] == 1) && (irSensor.irVal[1] == 1) && (irSensor.irVal[2] == 1) && (irSensor.irVal[3] == 1) && (irSensor.irVal[4] == 1)) {
+    encoder.resetCounter();
     mode = 4;
     return; 
   }
 
   if (abs(error) == 4) {
-    motor.stop();
-    error = prevError;  
+    error = prevError;
     motor.pControl(error);
   } else {
     motor.pControl(error);
@@ -122,7 +130,11 @@ void mode3() {
 }
 
 void mode4() {
-  encoder.getCounter(100);
+  if (usFront.check()) { // if detecting an obstacle
+    mode = 1;
+    return;
+  }
+  encoder.getCounter(1);
   if (encoder.rightCounter >= lim_run_1[i_mode4]) {
       motor.go(right_dynamic_1[i_mode4], left_dynamic_1[i_mode4]);
       i_mode4++;
@@ -131,7 +143,7 @@ void mode4() {
 }
 
 void mainloop() {
-  prevError = error;
+  if (error != 0) prevError = error;
   error = irSensor.getError(); // very important!!
   screen.showMode(mode);
   if (mode == 0) mode0();
