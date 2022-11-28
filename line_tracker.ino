@@ -165,5 +165,24 @@ void loop() {
 //  myPrint("left dist", usLeft.getDist());
 //  myPrint("right dist", usRight.getDist());
 //  myPrint("side dist", usSide.getDist());
-mainloop();
+// mainloop();
+// motor.go(MAX_SPEED, MAX_SPEED); 
+if (Serial.available() > 0) {
+  // Serial.println(Serial.read());
+  char tmp = Serial.read();
+  if (tmp=='b') {
+    motor.go(-speed, -speed);
+    Serial.println("Pressed b");
+  }
+  else if (tmp=='f') {
+    motor.go(speed, speed); 
+    Serial.println("Pressed f"); 
+  } else if (tmp == 'l') {
+    motor.turnLeft(speed);
+  } else if (tmp == 'r') {
+    motor.turnRight(speed);
+  }
+}
+
+
 }
