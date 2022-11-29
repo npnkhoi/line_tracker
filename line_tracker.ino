@@ -168,20 +168,14 @@ void loop() {
 // mainloop();
 // motor.go(MAX_SPEED, MAX_SPEED); 
 if (Serial.available() > 0) {
+  String data = Serial.readStringUntil('\n');
+  char tmp = data[0];
   // Serial.println(Serial.read());
-  char tmp = Serial.read();
-  if (tmp=='b') {
-    motor.go(-speed, -speed);
-    Serial.println("Pressed b");
-  }
-  else if (tmp=='f') {
-    motor.go(speed, speed); 
-    Serial.println("Pressed f"); 
-  } else if (tmp == 'l') {
-    motor.turnLeft(speed);
-  } else if (tmp == 'r') {
-    motor.turnRight(speed);
-  }
+  if (tmp=='s') motor.go(-speed, -speed);
+  else if (tmp=='w') motor.go(speed, speed); 
+  else if (tmp == 'a') motor.pControl(-2);
+  else if (tmp == 'd') motor.pControl(2);
+  else if (tmp == ' ') motor.stop();
 }
 
 
