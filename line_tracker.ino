@@ -57,8 +57,8 @@ Display screen(displayPins);
 void setup()
 {
   Serial.begin(9600);
-  Serial.println("Setting up ...");
-  Serial.println("Done setup.");
+//  Serial.println("Setting up ...");
+//  Serial.println("Done setup.");
   mode = 0;
 }
 
@@ -169,13 +169,17 @@ void loop() {
 // motor.go(MAX_SPEED, MAX_SPEED); 
 if (Serial.available() > 0) {
   String data = Serial.readStringUntil('\n');
+  Serial.print("You sent me: ");
+  Serial.println(data);
+  
   char tmp = data[0];
   // Serial.println(Serial.read());
   if (tmp=='s') motor.go(-speed, -speed);
   else if (tmp=='w') motor.go(speed, speed); 
   else if (tmp == 'a') motor.pControl(-2);
   else if (tmp == 'd') motor.pControl(2);
-  else if (tmp == ' ') motor.stop();
+  delay(100);
+  motor.stop();
 }
 
 
