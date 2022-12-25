@@ -2,7 +2,7 @@ import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt 
 
-crop_range = 150
+crop_range = 200
 
 def calculateLen(line):
     x1, y1, x2, y2 = line
@@ -20,7 +20,7 @@ def get_line_seg(imageOriginal):
     # convert to grey scale
     greyImage = cv.cvtColor(laneImage, cv.COLOR_RGB2GRAY)
     greyImage = cv.cvtColor(laneImage, cv.COLOR_RGB2GRAY)
-    thresholding = cv.threshold(greyImage, 150, 255, cv.THRESH_BINARY)
+    thresholding = cv.threshold(greyImage, 200, 255, cv.THRESH_BINARY)
     greyImage = thresholding[1]
     # detect 'possible' lane areas us
     # detect 'possible' lane areas using canny method

@@ -6,8 +6,9 @@ import datetime
 import utils
 from typing import Tuple
 from arduino import Arduino
+import template_matching
 
-def annotate_img(img, size) -> Tuple:
+def detect_line(img, size) -> Tuple:
     """
     get the processed image, line segment, control signal
 
@@ -41,7 +42,41 @@ def annotate_img(img, size) -> Tuple:
 
     return control, ret
 
+def detect_sign(img, size, directionDict):
+    sign_annotating, ret = template_matching.GetSignSingle(img)
+    print('getSignSingle done.')
+    ret = cv2.resize(ret, size)
+    ret = cv2.cvtColor(ret, cv2.COLOR_GRAY2RGB)
+
+    #if detects full sign --> update direction dict
+    if sign_annotating[0] is not None:
+        directionDict[sign_annotating[0]] += 1
+        ret = cv2.putText(ret, f'direction={directionDict[sign_annotating[0]]}', (50, 50), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        return None, ret, directionDict
+    elif sign_annotating[1] is None and sign_annotating[2] is not None:
+        direction = np.argmax(directionDict.values())
+        if directionDict[direction] > 3:
+            if direction == 0:
+                ret = cv2.putText(ret, f'STOP', (50, 50), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                return 4, ret, directionDict
+            elif direction == 1:
+                ret = cv2.putText(ret, f'TURN LEFT', (50, 50), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                return 1.2, ret, directionDict
+            elif direction == 2:
+                ret = cv2.putText(ret, f'TURN RIGHT', (50, 50), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                return -1.2, ret, directionDict
+
+    ret = cv2.putText(ret, f'NO SIGN', (50, 50), 
+                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+    return None, ret, directionDict
+
 if __name__ == "__main__":
+    control = 0
+    directionDict = {0: 0, 1: 0, 2: 0}
     duration = int(sys.argv[1])
 
     # Create an object to read 
@@ -72,6 +107,9 @@ if __name__ == "__main__":
     result2 = cv2.VideoWriter('annotated.avi', 
                             cv2.VideoWriter_fourcc(*'MJPG'),
                             10, size)
+    result3 = cv2.VideoWriter('sign_detecting.avi', 
+                            cv2.VideoWriter_fourcc(*'MJPG'),
+                        10, size)
 
     start_time = datetime.datetime.now()
     print(f'Started recording for {duration}s ...')
@@ -86,11 +124,25 @@ if __name__ == "__main__":
             frame0 = deepcopy(frame)
 
             # annotate image
-            control, frame2 = annotate_img(frame, size)
+            print('dectecting line')
+            line_control, frame2 = detect_line(frame, size)
+            print('dectecting line done. switch to sign')
+            tic = datetime.datetime.now()
+            # direction_control, frame3, directionDict = detect_sign(frame, size, directionDict)
+            direction_control, frame3, directionDict = None, frame0, directionDict
+            toc = datetime.datetime.now()
+            print(f'dectecting sign done, duration = {(toc-tic)}')
             result.write(frame0)
             result2.write(frame2)
+            result3.write(frame3)
 
             # control!
+            if direction_control is not None:
+                control = direction_control
+            elif line_control != 4:
+                control = line_control
+            print('control:', control)
+
             ard.write(str(control))
     
             # Display the frame
@@ -113,6 +165,7 @@ if __name__ == "__main__":
     video.release()
     result.release()
     result2.release()
+    result3.release()
         
     # Closes all the frames
     cv2.destroyAllWindows()
