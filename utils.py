@@ -18,7 +18,7 @@ def get_line_seg(imageOriginal):
     #convert to grey scale
     greyImage = cv.cvtColor(laneImage, cv.COLOR_RGB2GRAY)
     greyImage = cv.cvtColor(laneImage, cv.COLOR_RGB2GRAY)
-    thresholding = cv.threshold(greyImage, 220,255,cv.THRESH_BINARY)
+    thresholding = cv.threshold(greyImage, 140,255,cv.THRESH_BINARY)
     greyImage = thresholding[1]
     #detect 'possible' lane areas us
     #detect 'possible' lane areas using canny method
@@ -70,34 +70,34 @@ def get_error(img, band=0.15):
     plt.axvline(w*(0.5-band))
     plt.axvline(w*(0.5+band))
     sign = 1 if x >= 0 else -1
-    return sign * max(abs(x) - band, 0) * 3 / (0.5 - band)
+    return sign * max(abs(x) - band, 0) * 1 / (0.5 - band)
 
 # --------------------------------------------------------------------------
 import cv2 
 
 if __name__ == "__main__":
-	video_filename = 'vid1.mov'
-	vid = cv2.VideoCapture(video_filename)
+    video_filename = 'vid1.mov'
+    vid = cv2.VideoCapture(video_filename)
 
-	if (vid.isOpened()== False):
-	    print('error while openning vid')
-	    raise Exception
+    if (vid.isOpened()== False):
+        print('error while openning vid')
+        raise Exception
 
-	cnt = 0
-	while vid.isOpened():
-	    ret, img = vid.read()
-	    if ret:
-		cnt += 1
-		if cnt % 2 != 0:
-		    continue
-		# print(cnt)
-		error = get_error(img)
-		img = cv2.putText(img, f'error={"%.2f" % error}', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 3)
-		cv2.imshow('cam', img)
-		if cv2.waitKey(25) & 0xFF == ord('q'):
-		    break
-	    else:
-		break
+    cnt = 0
+    while vid.isOpened():
+        ret, img = vid.read()
+        if ret:
+            cnt += 1
+        if cnt % 5 != 0: # WARNING: may need to change this
+            continue
+        # print(cnt)
+        error = get_error(img)
+        img = cv2.putText(img, f'error={"%.2f" % error}', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 3)
+        cv2.imshow('cam', img)
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+            break
+        else:
+            break
 
-	vid.release()
-	cv2.destroyAllWindows()
+    vid.release()
+    cv2.destroyAllWindows()
