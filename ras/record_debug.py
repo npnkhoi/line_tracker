@@ -4,27 +4,46 @@ import numpy as np
 import sys
 import datetime
 import utils
+from typing import Tuple
+from arduino import Arduino
 
-def annotate_img(img):
+def annotate_img(img, size) -> Tuple:
     """
     get the processed image, line segment, control signal
+
+    Return: (error: float, img)
     """
     line, ret = utils.get_line_seg(img)
+    ret = cv2.resize(ret, size) # because it shrank a bit
+    ret = cv2.cvtColor(ret, cv2.COLOR_GRAY2RGB)
+
     if line is None:
         ret = cv2.putText(ret, 'Not found!', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-        print('not found!')
-        return ret
+        return 4, ret
     
     x1, y1, x2, y2 = line
 
     # draw the line segment and the center onto ret
-    ret = cv2.line(ret, (x1, y1), (x2, y2), (0, 255, 0), thickness=2)
+    ret = cv2.line(ret, (x1, y1), (x2, y2), (0, 255, 0), thickness=4)
     center = ((x1+x2)//2, (y1+y2)//2)
-    ret = cv2.circle(ret, center, 5, (255, 0, 0))
-    print(center)
-    return ret
+    ret = cv2.circle(ret, center, 10, (0, 0, 255), -1)
+    h, w = ret.shape[:2]
+    error = center[0] / w - 0.5
+    ret = cv2.putText(ret, f'error={round(error, 2)}', (50, 50), 
+        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+    
+    def error2control(e: float, mid_band=0.05) -> float:
+        if abs(error) <= mid_band:
+            return 0
+        # positive control means turn left, and vice versa
+        return 1.2 if error < 0 else -1.2
+    control = error2control(error)
+
+    return control, ret
 
 if __name__ == "__main__":
+    duration = int(sys.argv[1])
+
     # Create an object to read 
     # from camera
     video = cv2.VideoCapture(0)
@@ -55,9 +74,9 @@ if __name__ == "__main__":
                             10, size)
 
     start_time = datetime.datetime.now()
-    duration = 5 # second
     print(f'Started recording for {duration}s ...')
-        
+
+    ard = Arduino()
 
     while(True):
         ret, frame = video.read()
@@ -67,18 +86,23 @@ if __name__ == "__main__":
             frame0 = deepcopy(frame)
 
             # annotate image
-            frame2 = annotate_img(frame0)
-            frame2 = cv2.resize(frame2, size) # because it shrank a bit
-            frame2 = cv2.cvtColor(frame2, cv2.COLOR_GRAY2RGB)
-    
+            control, frame2 = annotate_img(frame, size)
             result.write(frame0)
             result2.write(frame2)
+
+            # control!
+            ard.write(str(control))
     
             # Display the frame
             # master_frame = np.concatenate([frame0, frame2], axis=1)
-            # cv2.imshow('Frame',  master_frame)
-    
+            # cv2.imshow('master frame',  master_frame)
+
+            # Break condition
             if (datetime.datetime.now() - start_time).seconds >= duration:
+                ard.write('4')
+                break
+            if cv2.waitKey(1) & 0xFF == ord('q'): # Do we need this in headless mode?
+                ard.write('4')
                 break
     
         # Break the loop

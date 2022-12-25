@@ -2,6 +2,8 @@ import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt 
 
+crop_range = 150
+
 def calculateLen(line):
     x1, y1, x2, y2 = line
     return (x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1)
@@ -27,7 +29,7 @@ def get_line_seg(imageOriginal):
     height = laneImage.shape[0]
     width = laneImage.shape[1]
     mask = np.zeros(laneImage.shape[:2], dtype="uint8")
-    cv.rectangle(mask, (15, height - 15), (width - 15, 250), 255, -1)
+    cv.rectangle(mask, (15, height - 15), (width - 15, crop_range), 255, -1)
     laneImage = cv.bitwise_and(laneImage, laneImage, mask = mask)
 
     # HOUGH TRANSFORMATION
