@@ -47,7 +47,7 @@ def get_line_seg(imageOriginal):
     firstline = [0, 0, 0, 0]
     for eachLine in lines:
         x1, y1, x2, y2 = eachLine[0]
-        if y1 == y2:
+        if y1 == y2 or (abs(x1 - x2))/(abs(y1 - y2)) < 0.35:
             continue
         #  if abs(y1 - y2) < abs(x1 - x2):
         #     continue

@@ -42,37 +42,42 @@ def detect_line(img, size) -> Tuple:
 
     return control, ret
 
-def detect_sign(img, size, directionDict):
-    sign_annotating, ret = template_matching.GetSignSingle(img)
-    print('getSignSingle done.')
-    ret = cv2.resize(ret, size)
-    ret = cv2.cvtColor(ret, cv2.COLOR_GRAY2RGB)
+def detect_sign(img):
+    dir, ret = template_matching.GetSignSingle(img)
+    return dir, ret
 
-    #if detects full sign --> update direction dict
-    if sign_annotating[0] is not None:
-        directionDict[sign_annotating[0]] += 1
-        ret = cv2.putText(ret, f'direction={directionDict[sign_annotating[0]]}', (50, 50), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-        return None, ret, directionDict
-    elif sign_annotating[1] is None and sign_annotating[2] is not None:
-        direction = np.argmax(directionDict.values())
-        if directionDict[direction] > 3:
-            if direction == 0:
-                ret = cv2.putText(ret, f'STOP', (50, 50), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-                return 4, ret, directionDict
-            elif direction == 1:
-                ret = cv2.putText(ret, f'TURN LEFT', (50, 50), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-                return 1.2, ret, directionDict
-            elif direction == 2:
-                ret = cv2.putText(ret, f'TURN RIGHT', (50, 50), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-                return -1.2, ret, directionDict
+    # draw rectangle to ret
 
-    ret = cv2.putText(ret, f'NO SIGN', (50, 50), 
-                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-    return None, ret, directionDict
+
+    # print('getSignSingle done.')
+    # ret = cv2.resize(ret, size)
+    # ret = cv2.cvtColor(ret, cv2.COLOR_GRAY2RGB)
+
+    # #if detects full sign --> update direction dict
+    # if sign_annotating[0] is not None:
+    #     directionDict[sign_annotating[0]] += 1
+    #     ret = cv2.putText(ret, f'direction={directionDict[sign_annotating[0]]}', (50, 50), 
+    #                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+    #     return None, ret, directionDict
+    # elif sign_annotating[1] is None and sign_annotating[2] is not None:
+    #     direction = np.argmax(directionDict.values())
+    #     if directionDict[direction] > 3:
+    #         if direction == 0:
+    #             ret = cv2.putText(ret, f'STOP', (50, 50), 
+    #                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+    #             return 4, ret, directionDict
+    #         elif direction == 1:
+    #             ret = cv2.putText(ret, f'TURN LEFT', (50, 50), 
+    #                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+    #             return 1.2, ret, directionDict
+    #         elif direction == 2:
+    #             ret = cv2.putText(ret, f'TURN RIGHT', (50, 50), 
+    #                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+    #             return -1.2, ret, directionDict
+
+    # ret = cv2.putText(ret, f'NO SIGN', (50, 50), 
+    #             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+    # return None, ret, directionDict
 
 if __name__ == "__main__":
     control = 0
@@ -129,7 +134,8 @@ if __name__ == "__main__":
             print('dectecting line done. switch to sign')
             tic = datetime.datetime.now()
             # direction_control, frame3, directionDict = detect_sign(frame, size, directionDict)
-            direction_control, frame3, directionDict = None, frame0, directionDict
+            direction_control, frame3 = detect_sign(frame)
+            # direction_control, frame3, directionDict = None, frame0, directionDict
             toc = datetime.datetime.now()
             print(f'dectecting sign done, duration = {(toc-tic)}')
             result.write(frame0)
