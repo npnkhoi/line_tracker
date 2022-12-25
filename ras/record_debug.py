@@ -8,6 +8,10 @@ from typing import Tuple
 from arduino import Arduino
 import template_matching
 
+direction_dict = {0: 0, 1: 0, 2: 0} #count direction 
+count_4 = 0 #check if out of line
+
+
 def detect_line(img, size) -> Tuple:
     """
     get the processed image, line segment, control signal
@@ -27,6 +31,9 @@ def detect_line(img, size) -> Tuple:
     # draw the line segment and the center onto ret
     ret = cv2.line(ret, (x1, y1), (x2, y2), (0, 255, 0), thickness=4)
     center = ((x1+x2)//2, (y1+y2)//2)
+    print(center)
+    if center == (0, 0):
+        return 4, ret
     ret = cv2.circle(ret, center, 10, (0, 0, 255), -1)
     h, w = ret.shape[:2]
     error = center[0] / w - 0.5
@@ -43,8 +50,21 @@ def detect_line(img, size) -> Tuple:
     return control, ret
 
 def detect_sign(img):
+    global direction_dict
     dir, ret = template_matching.GetSignSingle(img)
-    return dir, ret
+    if dir[0] is not None:
+        direction_dict[dir[0]] += 1
+    if count_4 > 3: #if 10 continuous frames can't detect lines
+        direction = np.argmax(direction_dict.values())
+        if direction == 0:
+            sign_control = 4
+        elif direction == 1:
+            sign_control = 1.2
+        else: #assuming it can't return None here
+            sign_control = -1.2
+    else: 
+        sign_control = None
+    return sign_control, ret
 
     # draw rectangle to ret
 
@@ -81,7 +101,7 @@ def detect_sign(img):
 
 if __name__ == "__main__":
     control = 0
-    directionDict = {0: 0, 1: 0, 2: 0}
+    turning_flag = False #is turning
     duration = int(sys.argv[1])
 
     # Create an object to read 
@@ -120,7 +140,6 @@ if __name__ == "__main__":
     print(f'Started recording for {duration}s ...')
 
     ard = Arduino()
-
     while(True):
         ret, frame = video.read()
         frame = cv2.resize(frame, size)
@@ -131,10 +150,15 @@ if __name__ == "__main__":
             # annotate image
             print('dectecting line')
             line_control, frame2 = detect_line(frame, size)
-            print('dectecting line done. switch to sign')
+            if line_control != 4:
+                count_4 = 0
+            else:
+                count_4 += 1
+            # print('dectecting line done. switch to sign')
             tic = datetime.datetime.now()
             # direction_control, frame3, directionDict = detect_sign(frame, size, directionDict)
-            direction_control, frame3 = detect_sign(frame)
+            # sign_control, frame3 = detect_sign(frame)
+            sign_control, frame3 = None, frame0
             # direction_control, frame3, directionDict = None, frame0, directionDict
             toc = datetime.datetime.now()
             print(f'dectecting sign done, duration = {(toc-tic)}')
@@ -143,11 +167,14 @@ if __name__ == "__main__":
             result3.write(frame3)
 
             # control!
-            if direction_control is not None:
-                control = direction_control
-            elif line_control != 4:
+            if sign_control is not None:
+                control = sign_control
+                print('following sign ...')
+                turning_flag = True
+            elif line_control != 4 or (turning_flag == False and count_4 > 3):
                 control = line_control
             print('control:', control)
+            print(direction_dict)
 
             ard.write(str(control))
     

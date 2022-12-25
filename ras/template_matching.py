@@ -12,7 +12,7 @@ base_template = [StopTemplate, TurnLeftTemplate, TurnRightTemplate]
 height, width = StopTemplate.shape[:2]
 templates = [[], [], []]
 for i, base in enumerate(base_template):
-    for scale in [0.5, 0.6, 0.7, 0.8, 1.0]:
+    for scale in [0.5, 0.7, 0.8, 1.0]:
         new_size = int(maxsize * scale)
         img = cv2.resize(base, (new_size, new_size))
         templates[i].append(img)
@@ -59,15 +59,18 @@ TemplateThreshold = 0.6
 def GetSignSingle(imgframe):
     # result = {} #result = {0: None, 1: None, 2: None}
     grayframe = cv2.cvtColor(imgframe, cv2.COLOR_BGR2GRAY)
+    h, w = grayframe.shape[:2]
+    print(h, w)
+    grayframe = cv2.resize(grayframe, (h//2, w//2))
     # curMaxLoc = (0,0)
-    best, sign = 0, None
+    best, sign = 0, (None, None)
     for i, lst in enumerate(templates):
         for temp in lst:
             res = cv2.matchTemplate(grayframe,temp,cv2.TM_CCOEFF_NORMED)
             min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
             if max_val > max(best, TemplateThreshold):
                 best = max_val
-                sign = (i, max_loc)
+                sign = [i, max_loc]
     return sign, grayframe
 
 

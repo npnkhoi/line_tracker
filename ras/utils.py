@@ -2,13 +2,14 @@ import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt 
 
-crop_range = 200
+crop_range = 300
 
 def calculateLen(line):
     x1, y1, x2, y2 = line
     return (x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1)
 
 def get_line_seg(imageOriginal):
+    # slope = 0.5
     # input: image
     # output: line (tuple of 4), lane_image
     drawnImage = np.copy(imageOriginal)
@@ -20,7 +21,7 @@ def get_line_seg(imageOriginal):
     # convert to grey scale
     greyImage = cv.cvtColor(laneImage, cv.COLOR_RGB2GRAY)
     greyImage = cv.cvtColor(laneImage, cv.COLOR_RGB2GRAY)
-    thresholding = cv.threshold(greyImage, 200, 255, cv.THRESH_BINARY)
+    thresholding = cv.threshold(greyImage, 230, 255, cv.THRESH_BINARY)
     greyImage = thresholding[1]
     # detect 'possible' lane areas us
     # detect 'possible' lane areas using canny method
@@ -35,9 +36,9 @@ def get_line_seg(imageOriginal):
     # HOUGH TRANSFORMATION
     rho = 1
     theta = np.pi/180
-    threshold = 80
-    minLineLength = 100
-    maxLineGap = 10
+    threshold = 20
+    minLineLength = 50
+    maxLineGap = 50
     lines = cv.HoughLinesP(laneImage, rho, theta, threshold, None, minLineLength, maxLineGap)
     if lines is None:
         return None, laneImage
@@ -47,13 +48,17 @@ def get_line_seg(imageOriginal):
     firstline = [0, 0, 0, 0]
     for eachLine in lines:
         x1, y1, x2, y2 = eachLine[0]
-        if y1 == y2 or (abs(x1 - x2))/(abs(y1 - y2)) < 0.35:
+        if x1 != x2 and abs(y1 - y2)/abs(x1 - x2) < 0.5:
             continue
         #  if abs(y1 - y2) < abs(x1 - x2):
         #     continue
         if calculateLen(firstline) < calculateLen(eachLine[0]):
             firstline = [x1, y1, x2, y2]
-    return firstline, laneImage
+            # slope = temp_slope
+    if firstline != [0, 0, 0, 0]:
+        return firstline, laneImage
+    else:
+        return None, laneImage
 
 def get_error(img, band=0.15):
     line = get_line_seg(img)
