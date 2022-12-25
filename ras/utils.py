@@ -7,30 +7,30 @@ def calculateLen(line):
     return (x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1)
 
 def get_line_seg(imageOriginal):
-    #input: image
-    #output: a, b, c of the linear function that the car should follow, height and width of the transformed image
+    # input: image
+    # output: line (tuple of 4), lane_image
     drawnImage = np.copy(imageOriginal)
     laneImage = np.copy(imageOriginal)
 
-    #CANNY ALGORITHM
+    # CANNY ALGORITHM
     lowThreshold = 50
     highThreshold = 150
-    #convert to grey scale
+    # convert to grey scale
     greyImage = cv.cvtColor(laneImage, cv.COLOR_RGB2GRAY)
     greyImage = cv.cvtColor(laneImage, cv.COLOR_RGB2GRAY)
-    thresholding = cv.threshold(greyImage, 140,255,cv.THRESH_BINARY)
+    thresholding = cv.threshold(greyImage, 150, 255, cv.THRESH_BINARY)
     greyImage = thresholding[1]
-    #detect 'possible' lane areas us
-    #detect 'possible' lane areas using canny method
+    # detect 'possible' lane areas us
+    # detect 'possible' lane areas using canny method
     laneImage = cv.Canny(greyImage, lowThreshold, highThreshold)
 
     height = laneImage.shape[0]
     width = laneImage.shape[1]
     mask = np.zeros(laneImage.shape[:2], dtype="uint8")
-    cv.rectangle(mask, (15, height - 15), (width - 15, 400), 255, -1)
+    cv.rectangle(mask, (15, height - 15), (width - 15, 250), 255, -1)
     laneImage = cv.bitwise_and(laneImage, laneImage, mask = mask)
 
-    #HOUGH TRANSFORMATION
+    # HOUGH TRANSFORMATION
     rho = 1
     theta = np.pi/180
     threshold = 80
@@ -38,7 +38,7 @@ def get_line_seg(imageOriginal):
     maxLineGap = 10
     lines = cv.HoughLinesP(laneImage, rho, theta, threshold, None, minLineLength, maxLineGap)
     if lines is None:
-        return None
+        return None, laneImage
     for line in lines:
         x1, y1, x2, y2 = line[0]
     
@@ -47,11 +47,11 @@ def get_line_seg(imageOriginal):
         x1, y1, x2, y2 = eachLine[0]
         if y1 == y2:
             continue
-        # if abs(y1 - y2) < abs(x1 - x2):
+        #  if abs(y1 - y2) < abs(x1 - x2):
         #     continue
         if calculateLen(firstline) < calculateLen(eachLine[0]):
             firstline = [x1, y1, x2, y2]
-    return firstline
+    return firstline, laneImage
 
 def get_error(img, band=0.15):
     line = get_line_seg(img)
